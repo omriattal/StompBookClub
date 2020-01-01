@@ -1,24 +1,37 @@
 package bgu.spl.net.srv;
 
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ConnectionsImpl<T> implements Connections<T> {
 
-	HashMap<Integer,ConnectionHandler<T>> connectionHandlerHashMap;
+	private ConcurrentHashMap<Integer,ConnectionHandler<T>> connectionHandlerMap;
+	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Integer>> channelMap;
 
 	@Override
 	public boolean send(int connectionId, T msg) {
-		//TODO: implement send
+		if(connectionHandlerMap.containsKey(connectionId)){
+			connectionHandlerMap.get(connectionId).send(msg);
+			return true;
+		}
 		return false;
 	}
 
 	@Override
 	public void send(String channel, T msg) {
-		//TODO: implement send
+		if(channelMap.containsKey(channel)){
+			for (Integer id: channelMap.get(channel)) {
+				connectionHandlerMap.get(id).send(msg);
+			}
+		}
 	}
 
 	@Override
 	public void disconnect(int connectionId) {
-		//TODO: implement disconnect
+		for (Map.Entry<String, ConcurrentLinkedQueue<Integer>> entry: channelMap.entrySet()) {
+			entry.getValue().remove(connectionId);
+		}
+		connectionHandlerMap.remove(connectionId);
 	}
 }
