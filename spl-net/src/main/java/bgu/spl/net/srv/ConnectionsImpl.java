@@ -1,6 +1,10 @@
 package bgu.spl.net.srv;
 
+import java.util.HashMap;
+
 public class ConnectionsImpl<T> implements Connections<T> {
+
+	HashMap<Integer,ConnectionHandler<T>> connectionHandlerHashMap;
 
 	@Override
 	public boolean send(int connectionId, T msg) {
