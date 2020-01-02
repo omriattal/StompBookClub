@@ -1,72 +1,64 @@
 package bgu.spl.net.impl.stomp;
 
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class StompFrame {
-	private String command;
+	private StompCommand commandType;
 	private HashMap<String, String> headersMap;
-	private StringBuilder frameBody;
-	private StompCommand stompCommandType;
+	private String frameBody;
+
+	public StompFrame() {
+	}
 
 	public StompFrame(String message) {
 		String[] lines = message.split(System.getProperty("line.separator"));
 		int currentLine = 0;
-		command = lines[currentLine];
+		commandType = StompCommand.valueOf(lines[currentLine].toUpperCase());
 		headersMap = new HashMap<>();
-		frameBody = new StringBuilder("");
 		currentLine++;
-		currentLine = populateHeadersMap(lines[currentLine], currentLine);
-		createFrameBody(lines, currentLine);
-		setCommandType();
-
-	}
-
-	private void setCommandType() {
-		if(command.equals("CONNECT")) {
-			stompCommandType = StompCommand.CONNECT;
-		}
-		else if(command.equals("SEND")) {
-			stompCommandType = StompCommand.SEND;
-		}
-		else if(command.equals("SUBSCRIBE")) {
-			stompCommandType = StompCommand.SUBSCRIBE;
-		}
-		else if(command.equals("UNSUBSCRIBE")) {
-			stompCommandType = StompCommand.UNSUBSCRIBE;
-		}
-		else if(command.equals("DISCONNECT")) {
-			stompCommandType = StompCommand.DISCONNECT;
-		}
-	}
-	public StompCommand getStompCommandType() {
-		return stompCommandType;
+		currentLine = populateHeadersMap(lines, currentLine);
+		frameBody = createFrameBody(lines, currentLine);
 	}
 
 
-	private void createFrameBody(String[] lines, int currentLine) {
-		while (!lines[currentLine].equals("^@")) {
-			frameBody.append(lines[currentLine++]);
-			frameBody.append("\n");
+	private String createFrameBody(String[] lines, int currentLine) {
+		StringBuilder frameBody = new StringBuilder("");
+		while (!lines[currentLine].equals("\u0000")) {
+			frameBody.append(lines[currentLine]).append("\n");
 			currentLine++;
 		}
+		return frameBody.toString();
 	}
 
-	private int populateHeadersMap(String line, int currentLine) {
-		while (!line.equals("")) {
-			String[] header = line.split(":");
+	private int populateHeadersMap(String[] lines, int currentLine) {
+		while (!lines[currentLine].equals("")) {
+			String[] header = lines[currentLine].split(":");
 			headersMap.put(header[0], header[1]);
 			currentLine++;
 		}
-		return currentLine;
+		return ++currentLine;
 	}
 
-	public String getCommand() {
-		return command;
+	@Override
+	public String toString() {
+		StringBuilder frameString = new StringBuilder("");
+		frameString.append(commandType).append("\n");
+		for (Map.Entry<String, String> entry:headersMap.entrySet()){
+			frameString.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
+		}
+		frameString.append("\n").append(frameBody).append("\u0000");
+
+		return frameString.toString();
 	}
 
-	public void setCommand(String command) {
-		this.command = command;
+	public StompCommand getCommandType() {
+		return commandType;
+	}
+
+	public void setCommandType(StompCommand commandType) {
+		this.commandType = commandType;
 	}
 
 	public HashMap<String, String> getHeadersMap() {
@@ -77,11 +69,11 @@ public class StompFrame {
 		this.headersMap = headersMap;
 	}
 
-	public StringBuilder getFrameBody() {
+	public String getFrameBody() {
 		return frameBody;
 	}
 
-	public void setFrameBody(StringBuilder frameBody) {
+	public void setFrameBody(String frameBody) {
 		this.frameBody = frameBody;
 	}
 }

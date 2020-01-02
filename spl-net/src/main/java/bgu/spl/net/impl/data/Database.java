@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.stomp.data;
+package bgu.spl.net.impl.data;
 
 import java.util.HashMap;
 
@@ -23,6 +23,9 @@ public class Database {
 		return userMap.containsKey(username);
 	}
 
+	public void addUser(User user){
+		userMap.put(user.name ,user);
+	}
 
 
 }
