@@ -21,8 +21,7 @@ public class ObjectEncoderDecoder implements MessageEncoderDecoder<Serializable>
 				objectBytesIndex = 0;
 				lengthBuffer.clear();
 			}
-		}
-		else {
+		} else {
 			objectBytes[objectBytesIndex] = nextByte;
 			if (++objectBytesIndex == objectBytes.length) {
 				Serializable result = deserializeObject();

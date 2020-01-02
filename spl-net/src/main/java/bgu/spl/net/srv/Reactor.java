@@ -49,11 +49,9 @@ public class Reactor<T> implements Server<T> {
 
 					if (!key.isValid()) {
 						continue;
-					}
-					else if (key.isAcceptable()) {
+					} else if (key.isAcceptable()) {
 						handleAccept(serverSock, selector);
-					}
-					else {
+					} else {
 						handleReadWrite(key);
 					}
 				}
@@ -77,8 +75,7 @@ public class Reactor<T> implements Server<T> {
 		final SelectionKey key = chan.keyFor(selector);
 		if (Thread.currentThread() == selectorThread) {
 			key.interestOps(ops);
-		}
-		else {
+		} else {
 			selectorTasks.add(() -> {
 				key.interestOps(ops);
 			});

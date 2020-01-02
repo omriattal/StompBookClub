@@ -4,18 +4,46 @@ import bgu.spl.net.api.StompMessagingProtocol;
 import bgu.spl.net.srv.Connections;
 
 public class StompMessagingProtocolImpl implements StompMessagingProtocol {
-    @Override
-    public void start(int connectionId, Connections<String> connections) {
+	private StompFrame stompFrame;
+	private Connections<String> connections;
+	private boolean shouldTerminate = false;
+	@Override
+	public void start(int connectionId, Connections<String> connections) {
 
-    }
+	}
 
-    @Override
-    public void process(String message) {
 
-    }
+	@Override
+	public void process(String message) {
+		stompFrame = new StompFrame(message);
+		StompCommand stompCommand = stompFrame.getStompCommandType();
+		switch (stompCommand) {
+			case CONNECT: {
 
-    @Override
-    public boolean shouldTerminate() {
-        return false;
-    }
+				
+			}
+
+			case SEND: {
+
+			}
+
+			case SUBSCRIBE: {
+
+			}
+			case DISCONNECT: {
+
+			}
+			case UNSUBSCRIBE: {
+
+
+			}
+		}
+
+
+	}
+
+	@Override
+	public boolean shouldTerminate() {
+		return shouldTerminate;
+	}
 }
