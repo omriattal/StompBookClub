@@ -9,6 +9,11 @@ public class ConnectionsImpl<T> implements Connections<T> {
 	private ConcurrentHashMap<Integer, ConnectionHandler<T>> connectionHandlerMap;
 	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Integer>> channelMap;
 
+	public ConnectionsImpl(){
+		connectionHandlerMap = new ConcurrentHashMap<>();
+		channelMap = new ConcurrentHashMap<>();
+	}
+
 	@Override
 	public boolean send(int connectionId, T msg) {
 		if (connectionHandlerMap.containsKey(connectionId)) {
