@@ -60,8 +60,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 
 	private void handleUnsubscribe(StompFrame receivedFrame) {
 		Integer subId = new Integer(receivedFrame.getHeadersMap().get("id"));
+		String topic = database.getUser(connectionId).getTopic(subId);
+		StompFrame receiptFrame = createReceiptFrame(messageCount.toString(),"Exited club " + topic);
 		database.getUser(connectionId).unsubscribe(subId);
 		database.unsubscribe(connectionId,subId);
+		connections.send(connectionId,receiptFrame.toString());
+		messageCount ++;
 	}
 
 	private void handleSend(StompFrame receivedFrame) {
@@ -85,7 +89,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 	}
 
 	private void handleDisconnect(StompFrame receivedFrame) {
-		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeadersMap().get("receipt-id"));
+		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeadersMap().get("receipt-id"),"");
 		connections.send(connectionId, ansFrame.toString());
 		database.logout(connectionId);
 		database.unsubscribeToAll(connectionId);
@@ -125,16 +129,13 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 	}
 
 
-	private StompFrame createReceiptFrame(String receiptId) {
+	private StompFrame createReceiptFrame(String receiptId,String framebody) {
 		HashMap<String,String> receiptHeaders = new HashMap<>();
 		receiptHeaders.put("receipt-id",receiptId);
-		return createFrame(StompCommand.RECEIPT,receiptHeaders,"");
+		return createFrame(StompCommand.RECEIPT,receiptHeaders,framebody);
 	}
 
-	@Override
-	public boolean shouldTerminate() {
-		return shouldTerminate;
-	}
+
 
 	public StompFrame createFrame(StompCommand command, HashMap<String, String> headersMap, String frameBody) {
 		StompFrame newFrame = new StompFrame();
@@ -142,5 +143,11 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		newFrame.setHeadersMap(headersMap);
 		newFrame.setFrameBody(frameBody);
 		return newFrame;
+	}
+
+
+	@Override
+	public boolean shouldTerminate() {
+		return shouldTerminate;
 	}
 }
