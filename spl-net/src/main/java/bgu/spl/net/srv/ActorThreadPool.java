@@ -26,7 +26,8 @@ public class ActorThreadPool {
 			if (!playingNow.contains(act)) {
 				playingNow.add(act);
 				execute(r, act);
-			} else {
+			}
+			else {
 				pendingRunnablesOf(act).add(r);
 			}
 		}
@@ -65,7 +66,8 @@ public class ActorThreadPool {
 			Queue<Runnable> pending = pendingRunnablesOf(act);
 			if (pending.isEmpty()) {
 				playingNow.remove(act);
-			} else {
+			}
+			else {
 				execute(pending.poll(), act);
 			}
 		}

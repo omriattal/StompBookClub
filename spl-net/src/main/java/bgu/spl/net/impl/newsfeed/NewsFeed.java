@@ -12,7 +12,8 @@ public class NewsFeed {
 		ConcurrentLinkedQueue<String> queue = channels.get(channel);
 		if (queue == null) {
 			return new ArrayList<>(0); //empty
-		} else {
+		}
+		else {
 			return new ArrayList<>(queue); //copy of the queue, arraylist is serializable
 		}
 	}

@@ -5,7 +5,7 @@ import java.util.Map;
 
 
 enum StompCommand {
-	CONNECT ,CONNECTED , MESSAGE, RECEIPT, ERROR, SEND, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT
+	CONNECT, CONNECTED, MESSAGE, RECEIPT, ERROR, SEND, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT
 }
 
 public class StompFrame {
@@ -50,7 +50,7 @@ public class StompFrame {
 	public String toString() {
 		StringBuilder frameString = new StringBuilder("");
 		frameString.append(commandType).append("\n");
-		for (Map.Entry<String, String> entry:headersMap.entrySet()){
+		for (Map.Entry<String, String> entry : headersMap.entrySet()) {
 			frameString.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
 		}
 		frameString.append("\n").append(frameBody).append("\u0000");

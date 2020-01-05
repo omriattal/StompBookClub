@@ -56,8 +56,10 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
 		String topic = headersMap.get("destination");
 		Integer subId = new Integer(headersMap.get("subscription"));
+
 		database.subscribe(connectionId, topic, subId);
-		connections.subscribe(topic ,connectionId);
+		connections.subscribe(topic, connectionId);
+
 		StompFrame ansFrame = createReceiptFrame(headersMap.get("receipt"), "");
 		connections.send(connectionId, ansFrame.toString());
 	}
@@ -65,12 +67,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 	private void handleUnsubscribe(StompFrame receivedFrame) {
 		Integer subId = new Integer(receivedFrame.getHeadersMap().get("id"));
 		String topic = database.getUser(connectionId).getTopic(subId);
-		StompFrame receiptFrame = createReceiptFrame(messageCount.toString(),"Exited club " + topic);
+		StompFrame receiptFrame = createReceiptFrame(messageCount.toString(), "Exited club " + topic);
 		messageCount++;
-		database.getUser(connectionId).unsubscribe(subId);
-		database.unsubscribe(connectionId,subId);
+
+		database.unsubscribe(connectionId, subId);
 		connections.unsubscribe(topic, connectionId);
-		connections.send(connectionId,receiptFrame.toString());
+		connections.send(connectionId, receiptFrame.toString());
 	}
 
 	private void handleSend(StompFrame receivedFrame) {
@@ -94,7 +96,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 	}
 
 	private void handleDisconnect(StompFrame receivedFrame) {
-		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeadersMap().get("receipt-id"),"");
+		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeadersMap().get("receipt-id"), "");
 		connections.send(connectionId, ansFrame.toString());
 		database.logout(connectionId);
 		database.unsubscribeToAll(connectionId);
@@ -102,10 +104,11 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		connections.disconnect(connectionId);
 		shouldTerminate = true;
 	}
+
 	private void connectionsUnsubToAll(int connectionId) {
-		HashMap<Integer,String> userSubMap = database.getUser(connectionId).getSubscriptionMap();
-		for (Map.Entry<Integer,String> entry : userSubMap.entrySet() ) {
-			connections.unsubscribe(entry.getValue(),connectionId);
+		HashMap<Integer, String> userSubMap = database.getUser(connectionId).getSubscriptionMap();
+		for (Map.Entry<Integer, String> entry : userSubMap.entrySet()) {
+			connections.unsubscribe(entry.getValue(), connectionId);
 		}
 
 	}
@@ -141,10 +144,10 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		return null;
 	}
 
-	private StompFrame createReceiptFrame(String receiptId,String frameBody) {
-		HashMap<String,String> receiptHeaders = new HashMap<>();
-		receiptHeaders.put("receipt-id",receiptId);
-		return createFrame(StompCommand.RECEIPT,receiptHeaders,frameBody);
+	private StompFrame createReceiptFrame(String receiptId, String frameBody) {
+		HashMap<String, String> receiptHeaders = new HashMap<>();
+		receiptHeaders.put("receipt-id", receiptId);
+		return createFrame(StompCommand.RECEIPT, receiptHeaders, frameBody);
 	}
 
 	public StompFrame createFrame(StompCommand command, HashMap<String, String> headersMap, String frameBody) {
