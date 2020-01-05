@@ -36,6 +36,10 @@ public class Database {
 	}
 	public User getUser(int connectionsId) { return connectionsIdMap.get(connectionsId);}
 
+	public HashMap<Integer, User> getTopic(String topic){
+		return topicMap.get(topic);
+	}
+
 	public LoginStatus login(int connectionId, String username, String password) {
 		if (!userExists(username)) {
 			User user = new User(connectionId,username, password);
@@ -53,6 +57,7 @@ public class Database {
 			}
 			else {
 				user.login();
+				user.setConnectionId(connectionId);
 				return LoginStatus.LOGGED_IN_SUCCESSFULLY;
 			}
 		}

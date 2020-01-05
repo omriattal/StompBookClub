@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class User {
-	public final int connectionId;
 	public final String name;
 	public final String password;
+	private int connectionId;
 	private boolean isLoggedIn = false;
 	private HashMap<Integer, String> subscriptionMap;
 
@@ -31,6 +31,10 @@ public class User {
 
 	public int getConnectionId() {
 		return connectionId;
+	}
+
+	public void setConnectionId(int connectionId) {
+		this.connectionId = connectionId;
 	}
 
 	public void subscribe(int subId, String topic) {
