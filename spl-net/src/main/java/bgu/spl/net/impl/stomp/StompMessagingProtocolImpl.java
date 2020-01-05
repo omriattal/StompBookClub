@@ -23,17 +23,10 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 	public void process(String message) {
 		StompFrame receivedFrame = new StompFrame();
 		receivedFrame.init(message);
-		StompFrame answerFrame;
 		StompCommand stompCommand = receivedFrame.getCommandType();
 		switch (stompCommand) {
 			case CONNECT: {
-				HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
-				String username = headersMap.get("username");
-				String password = headersMap.get("password");
-				LoginStatus loginStatus = Database.getInstance().login(username, password);
-				answerFrame = getConnectAnswerFrame(headersMap, username, loginStatus);
-
-				connections.send(connectionId, answerFrame.toString());
+				connect(receivedFrame);
 			}
 
 			case SEND: {
@@ -43,14 +36,25 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 			case SUBSCRIBE: {
 
 			}
+
 			case DISCONNECT: {
 
 			}
-			case UNSUBSCRIBE: {
 
+			case UNSUBSCRIBE: {
 
 			}
 		}
+	}
+
+	private void connect(StompFrame receivedFrame) {
+		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
+		String username = headersMap.get("username");
+		String password = headersMap.get("password");
+		LoginStatus loginStatus = Database.getInstance().login(username, password);
+		StompFrame answerFrame = getConnectAnswerFrame(headersMap, username, loginStatus);
+
+		connections.send(connectionId, answerFrame.toString());
 	}
 
 	private StompFrame getConnectAnswerFrame(HashMap<String, String> headersMap, String username, LoginStatus loginStatus) {
