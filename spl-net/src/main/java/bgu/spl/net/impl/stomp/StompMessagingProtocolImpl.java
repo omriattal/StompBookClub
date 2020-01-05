@@ -26,7 +26,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		StompCommand stompCommand = receivedFrame.getCommandType();
 		switch (stompCommand) {
 			case CONNECT: {
-				connect(receivedFrame);
+				handleConnect(receivedFrame);
 			}
 
 			case SEND: {
@@ -47,7 +47,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		}
 	}
 
-	private void connect(StompFrame receivedFrame) {
+	private void handleConnect(StompFrame receivedFrame) {
 		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
 		String username = headersMap.get("username");
 		String password = headersMap.get("password");
