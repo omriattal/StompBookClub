@@ -48,14 +48,20 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 			}
 
 			case UNSUBSCRIBE: {
-
-
+				handleUnsubscribe(receivedFrame);
 			}
 		}
 	}
 
+
 	private void handleSubscribe() {
 
+	}
+
+	private void handleUnsubscribe(StompFrame receivedFrame) {
+		Integer subId = new Integer(receivedFrame.getHeadersMap().get("id"));
+		database.getUser(connectionId).unsubscribe(subId);
+		database.unsubscribe(connectionId,subId);
 	}
 
 	private void handleSend(StompFrame receivedFrame) {
@@ -75,8 +81,16 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		String password = headersMap.get("password");
 		LoginStatus loginStatus = Database.getInstance().login(connectionId, username, password);
 		StompFrame answerFrame = getConnectAnswerFrame(headersMap, username, loginStatus);
-
 		connections.send(connectionId, answerFrame.toString());
+	}
+
+	private void handleDisconnect(StompFrame receivedFrame) {
+		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeadersMap().get("receipt-id"));
+		connections.send(connectionId, ansFrame.toString());
+		database.logout(connectionId);
+		database.unsubscribeToAll(connectionId);
+		connections.disconnect(connectionId);
+		shouldTerminate = true;
 	}
 
 	private StompFrame createMessageFrame(String destination, Integer subscription, String frameBody) {
@@ -110,18 +124,11 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		return null;
 	}
 
-	private void handleDisconnect(StompFrame receivedFrame) {
-		sendReceipt(receivedFrame);
-		database.logout(connectionId);
-		database.unsubscribeToAll(connectionId);
-		connections.disconnect(connectionId);
-	}
 
-	private void sendReceipt(StompFrame receivedFrame) {
+	private StompFrame createReceiptFrame(String receiptId) {
 		HashMap<String,String> receiptHeaders = new HashMap<>();
-		receiptHeaders.put("receipt-id",receivedFrame.getHeadersMap().get("receipt"));
-		StompFrame receiptFrame = createFrame(StompCommand.RECEIPT,receiptHeaders,"\n Disconnect request received");
-		handleSend(receiptFrame);
+		receiptHeaders.put("receipt-id",receiptId);
+		return createFrame(StompCommand.RECEIPT,receiptHeaders,"");
 	}
 
 	@Override

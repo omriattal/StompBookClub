@@ -64,14 +64,20 @@ public class Database {
 	}
 
 	public void unsubscribeToAll(int connectionsId) {
-		for (Map.Entry<String,HashMap<Integer,User>> topicEntry: topicMap.entrySet()) {
-			for (Map.Entry<Integer,String>  subscriptionEntry : getUser(connectionsId).getSubscriptionMap().entrySet()) {
-				topicEntry.getValue().remove(subscriptionEntry.getKey());
-			}
+
+		for (Map.Entry<Integer,String>  subscriptionEntry : getUser(connectionsId).getSubscriptionMap().entrySet()) {
+			HashMap<Integer,User> topicToUnsub = topicMap.get(subscriptionEntry.getValue());
+			topicToUnsub.remove(subscriptionEntry.getKey());
 		}
 
 	}
+	public void unsubscribe(int connectionsId,int subId) {
+		User user = getUser(connectionsId);
+		String topic = user.getTopic(subId);
+		topicMap.get(topic).remove(subId);
+		user.unsubscribe(subId);
+	}
 
-	public void logout ( int connectionsId) { getUser(connectionsId).logout(); }
+	public void logout (int connectionsId) {getUser(connectionsId).logout();}
 
 }

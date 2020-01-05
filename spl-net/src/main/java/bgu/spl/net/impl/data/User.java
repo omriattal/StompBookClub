@@ -49,5 +49,9 @@ public class User {
 	public void unsubscribe(int subId) {
 		subscriptionMap.remove(subId);
 	}
+	public String getTopic(int subId) {
+
+		return subscriptionMap.get(subId);
+	}
 
 }
