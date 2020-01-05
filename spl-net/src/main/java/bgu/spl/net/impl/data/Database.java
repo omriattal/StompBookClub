@@ -27,5 +27,28 @@ public class Database {
 		userMap.put(user.name ,user);
 	}
 
+	public User getUser(String username){
+		return userMap.get(username);
+	}
 
+	public LoginStatus login(String username, String password){
+		if(!userExists(username)){
+			User user = new User(username, password);
+			addUser(user);
+			return LoginStatus.ADDED_NEW_USER;
+		}
+		else{
+			User user = getUser(username);
+			if(user.isLoggedIn()){
+				return LoginStatus.ALREADY_LOGGED_IN;
+			}
+			else if(!user.password.equals(password)){
+				return LoginStatus.WRONG_PASSWORD;
+			}
+			else{
+				user.login();
+				return LoginStatus.LOGGED_IN_SUCCESSFULLY;
+			}
+		}
+	}
 }

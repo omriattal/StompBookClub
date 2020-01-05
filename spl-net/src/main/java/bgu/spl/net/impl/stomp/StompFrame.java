@@ -4,19 +4,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+enum StompCommand {
+	CONNECT ,CONNECTED , MESSAGE, RECEIPT, ERROR, SEND, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT
+}
+
 public class StompFrame {
 	private StompCommand commandType;
 	private HashMap<String, String> headersMap;
 	private String frameBody;
 
 	public StompFrame() {
+		headersMap = new HashMap<>();
 	}
 
-	public StompFrame(String message) {
+	public void init(String message) {
 		String[] lines = message.split(System.getProperty("line.separator"));
 		int currentLine = 0;
 		commandType = StompCommand.valueOf(lines[currentLine].toUpperCase());
-		headersMap = new HashMap<>();
 		currentLine++;
 		currentLine = populateHeadersMap(lines, currentLine);
 		frameBody = createFrameBody(lines, currentLine);
