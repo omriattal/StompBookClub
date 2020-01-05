@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Database {
 	private HashMap<String, User> userMap;
-	private HashMap<Integer,User> connectionsIdMap;
+	private HashMap<Integer, User> connectionsIdMap;
 	private HashMap<String, HashMap<Integer, User>> topicMap;
 
 	private Database() {
@@ -34,6 +34,7 @@ public class Database {
 	public User getUser(String username) {
 		return userMap.get(username);
 	}
+
 	public User getUser(int connectionsId) { return connectionsIdMap.get(connectionsId);}
 
 	public HashMap<Integer, User> getTopic(String topic){
@@ -80,4 +81,12 @@ public class Database {
 
 	public void logout (int connectionsId) {getUser(connectionsId).logout();}
 
+	public void subscribe(int connectionId, String topic, int subId){
+		User user = connectionsIdMap.get(connectionId);
+		user.subscribe(subId, topic);
+		if(!topicMap.containsKey(topic)){
+			topicMap.put(topic, new HashMap<>());
+		}
+		topicMap.get(topic).put(subId, user);
+	}
 }

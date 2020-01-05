@@ -39,12 +39,11 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 			}
 
 			case SUBSCRIBE: {
-				handleSubscribe();
+				handleSubscribe(receivedFrame);
 			}
 
 			case DISCONNECT: {
 				handleDisconnect(receivedFrame);
-
 			}
 
 			case UNSUBSCRIBE: {
@@ -53,19 +52,24 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		}
 	}
 
-
-	private void handleSubscribe() {
-
+	private void handleSubscribe(StompFrame receivedFrame) {
+		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
+		String topic = headersMap.get("destination");
+		Integer subId = new Integer(headersMap.get("subscription"));
+		database.subscribe(connectionId, topic, subId);
+		connections.subscribe(topic ,connectionId);
+		StompFrame ansFrame = createReceiptFrame(headersMap.get("receipt"), "");
+		connections.send(connectionId, ansFrame.toString());
 	}
 
 	private void handleUnsubscribe(StompFrame receivedFrame) {
 		Integer subId = new Integer(receivedFrame.getHeadersMap().get("id"));
 		String topic = database.getUser(connectionId).getTopic(subId);
 		StompFrame receiptFrame = createReceiptFrame(messageCount.toString(),"Exited club " + topic);
+		messageCount++;
 		database.getUser(connectionId).unsubscribe(subId);
 		database.unsubscribe(connectionId,subId);
 		connections.send(connectionId,receiptFrame.toString());
-		messageCount ++;
 	}
 
 	private void handleSend(StompFrame receivedFrame) {
@@ -128,14 +132,11 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		return null;
 	}
 
-
-	private StompFrame createReceiptFrame(String receiptId,String framebody) {
+	private StompFrame createReceiptFrame(String receiptId,String frameBody) {
 		HashMap<String,String> receiptHeaders = new HashMap<>();
 		receiptHeaders.put("receipt-id",receiptId);
-		return createFrame(StompCommand.RECEIPT,receiptHeaders,framebody);
+		return createFrame(StompCommand.RECEIPT,receiptHeaders,frameBody);
 	}
-
-
 
 	public StompFrame createFrame(StompCommand command, HashMap<String, String> headersMap, String frameBody) {
 		StompFrame newFrame = new StompFrame();

@@ -1,6 +1,7 @@
 package bgu.spl.net.srv;
 
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -12,6 +13,12 @@ public class ConnectionsImpl<T> implements Connections<T> {
 	public ConnectionsImpl() {
 		connectionHandlerMap = new ConcurrentHashMap<>();
 		channelMap = new ConcurrentHashMap<>();
+	}
+
+	@Override
+	public void subscribe(String topic, int connectionId) {
+		Queue<Integer> channelQ = channelMap.get(topic);
+		channelQ.add(connectionId);
 	}
 
 	@Override
