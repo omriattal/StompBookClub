@@ -11,11 +11,13 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 	private Connections<String> connections;
 	private int connectionId;
 	private boolean shouldTerminate = false;
+	private Database database;
 
 	@Override
 	public void start(int connectionId, Connections<String> connections) {
 		this.connections = connections;
 		this.connectionId = connectionId;
+		database = Database.getInstance();
 	}
 
 
@@ -39,10 +41,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 			}
 
 			case DISCONNECT: {
+				handleDisconnect(receivedFrame);
 
 			}
 
 			case UNSUBSCRIBE: {
+
 
 			}
 		}
@@ -80,6 +84,24 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		}
 		return null;
 	}
+
+	private void handleDisconnect(StompFrame receivedFrame) {
+		sendReceipt(receivedFrame);
+		database.unsubscribeToAll(connectionId);
+		connections.disconnect(connectionId);
+	}
+
+	private void sendReceipt(StompFrame receivedFrame) {
+		HashMap<String,String> receiptHeaders = new HashMap<>();
+		receiptHeaders.put("receipt-id",receivedFrame.getHeadersMap().get("receipt"));
+		StompFrame receiptFrame = createFrame(StompCommand.RECEIPT,receiptHeaders,"\n Disconnect request received");
+		handleSend(receiptFrame);
+	}
+
+	private void handleSend(StompFrame receiptFrame) {
+
+	}
+
 
 	@Override
 	public boolean shouldTerminate() {

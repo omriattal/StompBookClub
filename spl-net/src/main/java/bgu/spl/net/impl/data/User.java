@@ -1,6 +1,7 @@
 package bgu.spl.net.impl.data;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class User {
 	public final int connectionId;
@@ -33,10 +34,16 @@ public class User {
 	}
 
 	public void subscribe(int subId, String topic) {
-
+		subscriptionMap.put(subId,topic);
 	}
+	public HashMap<Integer,String> getSubscriptionMap () {
+		return subscriptionMap;
+	}
+
+	public String getUserName () {return  name;}
 
 	public void unsubscribe(int subId) {
-
+		subscriptionMap.remove(subId);
 	}
+
 }

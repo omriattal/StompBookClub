@@ -1,16 +1,17 @@
 package bgu.spl.net.impl.data;
 
-import bgu.spl.net.Pair;
-
 import java.util.HashMap;
+import java.util.Map;
 
 public class Database {
 	private HashMap<String, User> userMap;
-	private HashMap<String, Pair<Integer, User>> topicMap;
+	private HashMap<Integer,User> connectionsIdMap;
+	private HashMap<String, HashMap<Integer, User>> topicMap;
 
 	private Database() {
 		userMap = new HashMap<>();
 		topicMap = new HashMap<>();
+		connectionsIdMap = new HashMap<>();
 	}
 
 	private static class Instance {
@@ -27,11 +28,13 @@ public class Database {
 
 	public void addUser(User user) {
 		userMap.put(user.name, user);
+		connectionsIdMap.put(user.getConnectionId(),user);
 	}
 
 	public User getUser(String username) {
 		return userMap.get(username);
 	}
+	public User getUser(int connectionsId) { return connectionsIdMap.get(connectionsId);}
 
 	public LoginStatus login(int connectionId, String username, String password) {
 		if (!userExists(username)) {
@@ -54,4 +57,17 @@ public class Database {
 			}
 		}
 	}
+
+	public void unsubscribeToAll(int connectionsId) {
+		logout(connectionsId);
+		for (Map.Entry<String,HashMap<Integer,User>> topicEntry: topicMap.entrySet()) {
+			for (Map.Entry<Integer,String>  subscriptionEntry : getUser(connectionsId).getSubscriptionMap().entrySet()) {
+				topicEntry.getValue().remove(subscriptionEntry.getKey());
+			}
+		}
+
+	}
+
+	private void logout ( int connectionsId) { getUser(connectionsId).logout(); }
+
 }
