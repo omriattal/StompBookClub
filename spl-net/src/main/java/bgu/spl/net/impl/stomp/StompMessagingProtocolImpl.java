@@ -87,6 +87,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 
 	private void handleDisconnect(StompFrame receivedFrame) {
 		sendReceipt(receivedFrame);
+		database.logout(connectionId);
 		database.unsubscribeToAll(connectionId);
 		connections.disconnect(connectionId);
 	}

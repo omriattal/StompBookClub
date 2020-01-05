@@ -59,7 +59,6 @@ public class Database {
 	}
 
 	public void unsubscribeToAll(int connectionsId) {
-		logout(connectionsId);
 		for (Map.Entry<String,HashMap<Integer,User>> topicEntry: topicMap.entrySet()) {
 			for (Map.Entry<Integer,String>  subscriptionEntry : getUser(connectionsId).getSubscriptionMap().entrySet()) {
 				topicEntry.getValue().remove(subscriptionEntry.getKey());
@@ -68,6 +67,6 @@ public class Database {
 
 	}
 
-	private void logout ( int connectionsId) { getUser(connectionsId).logout(); }
+	public void logout ( int connectionsId) { getUser(connectionsId).logout(); }
 
 }
