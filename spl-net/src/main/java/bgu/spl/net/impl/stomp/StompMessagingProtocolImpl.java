@@ -69,6 +69,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		messageCount++;
 		database.getUser(connectionId).unsubscribe(subId);
 		database.unsubscribe(connectionId,subId);
+		connections.unsubscribe(topic, connectionId);
 		connections.send(connectionId,receiptFrame.toString());
 	}
 
@@ -145,7 +146,6 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		newFrame.setFrameBody(frameBody);
 		return newFrame;
 	}
-
 
 	@Override
 	public boolean shouldTerminate() {

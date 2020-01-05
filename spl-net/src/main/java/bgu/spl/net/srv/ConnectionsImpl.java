@@ -22,6 +22,12 @@ public class ConnectionsImpl<T> implements Connections<T> {
 	}
 
 	@Override
+	public void unsubscribe(String topic, int connectionId) {
+		Queue<Integer> channelQ = channelMap.get(topic);
+		channelQ.remove(connectionId);
+	}
+
+	@Override
 	public boolean send(int connectionId, T msg) {
 		if (connectionHandlerMap.containsKey(connectionId)) {
 			connectionHandlerMap.get(connectionId).send(msg);

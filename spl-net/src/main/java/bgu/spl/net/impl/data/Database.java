@@ -72,6 +72,7 @@ public class Database {
 		}
 
 	}
+
 	public void unsubscribe(int connectionsId,int subId) {
 		User user = getUser(connectionsId);
 		String topic = user.getTopic(subId);

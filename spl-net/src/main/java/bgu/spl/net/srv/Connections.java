@@ -9,4 +9,6 @@ public interface Connections<T> {
 	void disconnect(int connectionId);
 
 	void subscribe(String topic, int connectionId);
+
+	void unsubscribe(String topic, int connectionId);
 }
