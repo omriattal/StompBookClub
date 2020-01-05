@@ -48,6 +48,7 @@ public class User {
 		return name;
 	}
 
+
 	public void unsubscribe(int subId) {
 		subscriptionMap.remove(subId);
 	}

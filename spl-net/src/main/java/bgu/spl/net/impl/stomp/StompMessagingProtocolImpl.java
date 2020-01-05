@@ -98,8 +98,16 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		connections.send(connectionId, ansFrame.toString());
 		database.logout(connectionId);
 		database.unsubscribeToAll(connectionId);
+		connectionsUnsubToAll(connectionId);
 		connections.disconnect(connectionId);
 		shouldTerminate = true;
+	}
+	private void connectionsUnsubToAll(int connectionId) {
+		HashMap<Integer,String> userSubMap = database.getUser(connectionId).getSubscriptionMap();
+		for (Map.Entry<Integer,String> entry : userSubMap.entrySet() ) {
+			connections.unsubscribe(entry.getValue(),connectionId);
+		}
+
 	}
 
 	private StompFrame createMessageFrame(String destination, Integer subscription, String frameBody) {

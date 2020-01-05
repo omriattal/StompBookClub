@@ -1,5 +1,7 @@
 package bgu.spl.net.srv;
 
+import bgu.spl.net.impl.data.Database;
+
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,6 +49,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
 	@Override
 	public void disconnect(int connectionId) {
+
 		for (Map.Entry<String, ConcurrentLinkedQueue<Integer>> entry : channelMap.entrySet()) {
 			entry.getValue().remove(connectionId);
 		}
