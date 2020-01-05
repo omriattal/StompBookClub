@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class StompEncoderDecoder implements MessageEncoderDecoder<String> {
-	private byte[] bytes = new byte[1 << 10]; //start with 1k
+	private byte[] bytes = new byte[1 << 10];
 	private int len = 0;
 
 	@Override
