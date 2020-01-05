@@ -1,14 +1,16 @@
 package bgu.spl.net.impl.data;
 
+import bgu.spl.net.Pair;
+
 import java.util.HashMap;
 
 public class Database {
 	private HashMap<String, User> userMap;
-	private HashMap<Integer, User> subscriptionMap;
+	private HashMap<String, Pair<Integer, User>> topicMap;
 
 	private Database() {
 		userMap = new HashMap<>();
-		subscriptionMap = new HashMap<>();
+		topicMap = new HashMap<>();
 	}
 
 	private static class Instance {
@@ -23,29 +25,30 @@ public class Database {
 		return userMap.containsKey(username);
 	}
 
-	public void addUser(User user){
-		userMap.put(user.name ,user);
+	public void addUser(User user) {
+		userMap.put(user.name, user);
 	}
 
-	public User getUser(String username){
+	public User getUser(String username) {
 		return userMap.get(username);
 	}
 
-	public LoginStatus login(String username, String password){
-		if(!userExists(username)){
-			User user = new User(username, password);
+	public LoginStatus login(int connectionId, String username, String password) {
+		if (!userExists(username)) {
+			User user = new User(connectionId,username, password);
+			user.login();
 			addUser(user);
 			return LoginStatus.ADDED_NEW_USER;
 		}
-		else{
+		else {
 			User user = getUser(username);
-			if(user.isLoggedIn()){
+			if (user.isLoggedIn()) {
 				return LoginStatus.ALREADY_LOGGED_IN;
 			}
-			else if(!user.password.equals(password)){
+			else if (!user.password.equals(password)) {
 				return LoginStatus.WRONG_PASSWORD;
 			}
-			else{
+			else {
 				user.login();
 				return LoginStatus.LOGGED_IN_SUCCESSFULLY;
 			}

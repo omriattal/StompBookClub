@@ -9,7 +9,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
 	private ConcurrentHashMap<Integer, ConnectionHandler<T>> connectionHandlerMap;
 	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Integer>> channelMap;
 
-	public ConnectionsImpl(){
+	public ConnectionsImpl() {
 		connectionHandlerMap = new ConcurrentHashMap<>();
 		channelMap = new ConcurrentHashMap<>();
 	}

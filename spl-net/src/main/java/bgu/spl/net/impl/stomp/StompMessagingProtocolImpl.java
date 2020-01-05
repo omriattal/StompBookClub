@@ -30,6 +30,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 			}
 
 			case SEND: {
+				HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
 
 			}
 
@@ -51,7 +52,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
 		String username = headersMap.get("username");
 		String password = headersMap.get("password");
-		LoginStatus loginStatus = Database.getInstance().login(username, password);
+		LoginStatus loginStatus = Database.getInstance().login(connectionId, username, password);
 		StompFrame answerFrame = getConnectAnswerFrame(headersMap, username, loginStatus);
 
 		connections.send(connectionId, answerFrame.toString());
@@ -68,13 +69,13 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 			case ALREADY_LOGGED_IN:{
 				ansHeadersMap.put("message", "User already logged in");
 				return createFrame(StompCommand.ERROR, ansHeadersMap,
-						"Failed to login user: " + username + "\n Reason: user already logged in.");
+						"Failed to login user: " + username + "\n Reason: user already logged in");
 			}
 
 			case WRONG_PASSWORD: {
 				ansHeadersMap.put("message", "Wrong password");
 				return createFrame(StompCommand.ERROR, ansHeadersMap,
-						"Failed to login user: " + username + "\n Reason: wrong password.");
+						"Failed to login user: " + username + "\n Reason: wrong password");
 			}
 		}
 		return null;

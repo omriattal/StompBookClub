@@ -15,6 +15,7 @@ public class StompFrame {
 
 	public StompFrame() {
 		headersMap = new HashMap<>();
+		frameBody = "";
 	}
 
 	public void init(String message) {
