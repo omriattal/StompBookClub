@@ -18,6 +18,4 @@ public interface MessageEncoderDecoder<T> {
 	 * @return the encoded bytes
 	 */
 	byte[] encode(T message);
-
-	byte[] encode(String message);
 }

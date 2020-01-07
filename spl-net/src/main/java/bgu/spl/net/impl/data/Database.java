@@ -6,7 +6,7 @@ import java.util.Map;
 public class Database {
 	private HashMap<String, User> userMap;
 	private HashMap<Integer, User> connectionsIdMap;
-	private HashMap<String, HashMap<Integer, User>> topicMap;
+	private HashMap<String, HashMap<User, Integer>> topicMap;
 
 	private Database() {
 		userMap = new HashMap<>();
@@ -37,7 +37,7 @@ public class Database {
 
 	public User getUser(int connectionsId) { return connectionsIdMap.get(connectionsId);}
 
-	public HashMap<Integer, User> getTopic(String topic) {
+	public HashMap<User, Integer> getTopic(String topic) {
 		return topicMap.get(topic);
 	}
 
@@ -72,23 +72,20 @@ public class Database {
 		if (!topicMap.containsKey(topic)) {
 			topicMap.put(topic, new HashMap<>());
 		}
-		topicMap.get(topic).put(subId, user);
+		topicMap.get(topic).put(user, subId);
 	}
 
 	public void unsubscribeToAll(int connectionsId) {
-
 		for (Map.Entry<Integer, String> subscriptionEntry : getUser(connectionsId).getSubscriptionMap().entrySet()) {
-			HashMap<Integer, User> topicToUnsub = topicMap.get(subscriptionEntry.getValue());
-			topicToUnsub.remove(subscriptionEntry.getKey());
+			HashMap<User, Integer> topicToUnsub = topicMap.get(subscriptionEntry.getValue());
+			topicToUnsub.remove(getUser(connectionsId));
 		}
-
 	}
 
 	public void unsubscribe(int connectionId, int subId) {
 		User user = getUser(connectionId);
-		getUser(connectionId).unsubscribe(subId);
 		String topic = user.getTopic(subId);
-		topicMap.get(topic).remove(subId);
+		topicMap.get(topic).remove(getUser(connectionId));
 		user.unsubscribe(subId);
 	}
 

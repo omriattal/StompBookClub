@@ -5,15 +5,17 @@ import bgu.spl.net.api.MessageEncoderDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class StompEncoderDecoder implements MessageEncoderDecoder<String> {
+public class StompEncoderDecoder implements MessageEncoderDecoder<StompFrame> {
 	private byte[] bytes = new byte[1 << 10];
 	private int len = 0;
 
 	@Override
-	public String decodeNextByte(byte nextByte) {
+	public StompFrame decodeNextByte(byte nextByte) {
 		if (nextByte == '\u0000') {
 			pushByte(nextByte);
-			return popString();
+			StompFrame receivedFrame = new StompFrame();
+			receivedFrame.init(popString());
+			return receivedFrame;
 		}
 
 		pushByte(nextByte);
@@ -21,8 +23,8 @@ public class StompEncoderDecoder implements MessageEncoderDecoder<String> {
 	}
 
 	@Override
-	public byte[] encode(String message) {
-		return (message).getBytes();
+	public byte[] encode(StompFrame message) {
+		return message.toString().getBytes();
 	}
 
 	private void pushByte(byte nextByte) {

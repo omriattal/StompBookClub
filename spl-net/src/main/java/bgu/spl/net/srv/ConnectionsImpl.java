@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConnectionsImpl<T> implements Connections<T> {
 
@@ -13,18 +14,6 @@ public class ConnectionsImpl<T> implements Connections<T> {
 	public ConnectionsImpl() {
 		connectionHandlerMap = new ConcurrentHashMap<>();
 		channelMap = new ConcurrentHashMap<>();
-	}
-
-	@Override
-	public void subscribe(String topic, int connectionId) {
-		Queue<Integer> channelQ = channelMap.get(topic);
-		channelQ.add(connectionId);
-	}
-
-	@Override
-	public void unsubscribe(String topic, int connectionId) {
-		Queue<Integer> channelQ = channelMap.get(topic);
-		channelQ.remove(connectionId);
 	}
 
 	@Override
@@ -46,11 +35,28 @@ public class ConnectionsImpl<T> implements Connections<T> {
 	}
 
 	@Override
-	public void disconnect(int connectionId) {
+	public void connect(int connectionId ,ConnectionHandler<T> connectionHandler) {
+		connectionHandlerMap.put(connectionId, connectionHandler);
+	}
 
+	@Override
+	public void disconnect(int connectionId) {
 		for (Map.Entry<String, ConcurrentLinkedQueue<Integer>> entry : channelMap.entrySet()) {
 			entry.getValue().remove(connectionId);
 		}
 		connectionHandlerMap.remove(connectionId);
 	}
+
+	@Override
+	public void subscribe(String topic, int connectionId) {
+		Queue<Integer> channelQ = channelMap.get(topic);
+		channelQ.add(connectionId);
+	}
+
+	@Override
+	public void unsubscribe(String topic, int connectionId) {
+		Queue<Integer> channelQ = channelMap.get(topic);
+		channelQ.remove(connectionId);
+	}
+
 }

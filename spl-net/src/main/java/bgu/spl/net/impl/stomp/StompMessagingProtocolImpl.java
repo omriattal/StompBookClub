@@ -9,45 +9,42 @@ import bgu.spl.net.srv.Connections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StompMessagingProtocolImpl implements StompMessagingProtocol {
-	private Connections<String> connections;
+public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompFrame> {
+	private Connections<StompFrame> connections;
 	private int connectionId;
 	private boolean shouldTerminate = false;
 	private Database database;
 	private static Integer messageCount = 1;
 
 	@Override
-	public void start(int connectionId, Connections<String> connections) {
+	public void start(int connectionId, Connections<StompFrame> connections) {
 		this.connections = connections;
 		this.connectionId = connectionId;
 		database = Database.getInstance();
 	}
 
-
 	@Override
-	public void process(String message) {
-		StompFrame receivedFrame = new StompFrame();
-		receivedFrame.init(message);
-		StompCommand stompCommand = receivedFrame.getCommandType();
+	public void process(StompFrame message) {
+		StompCommand stompCommand = message.getCommandType();
 		switch (stompCommand) {
 			case CONNECT: {
-				handleConnect(receivedFrame);
+				handleConnect(message);
 			}
 
 			case SEND: {
-				handleSend(receivedFrame);
+				handleSend(message);
 			}
 
 			case SUBSCRIBE: {
-				handleSubscribe(receivedFrame);
+				handleSubscribe(message);
 			}
 
 			case DISCONNECT: {
-				handleDisconnect(receivedFrame);
+				handleDisconnect(message);
 			}
 
 			case UNSUBSCRIBE: {
-				handleUnsubscribe(receivedFrame);
+				handleUnsubscribe(message);
 			}
 		}
 	}
@@ -61,28 +58,28 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		connections.subscribe(topic, connectionId);
 
 		StompFrame ansFrame = createReceiptFrame(headersMap.get("receipt"), "");
-		connections.send(connectionId, ansFrame.toString());
+		connections.send(connectionId, ansFrame);
 	}
 
 	private void handleUnsubscribe(StompFrame receivedFrame) {
-		Integer subId = new Integer(receivedFrame.getHeadersMap().get("id"));
+		int subId = new Integer(receivedFrame.getHeadersMap().get("id"));
 		String topic = database.getUser(connectionId).getTopic(subId);
 		StompFrame receiptFrame = createReceiptFrame(messageCount.toString(), "Exited club " + topic);
 		messageCount++;
 
 		database.unsubscribe(connectionId, subId);
 		connections.unsubscribe(topic, connectionId);
-		connections.send(connectionId, receiptFrame.toString());
+		connections.send(connectionId, receiptFrame);
 	}
 
 	private void handleSend(StompFrame receivedFrame) {
 		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
 		String topic = headersMap.get("destination");
-		HashMap<Integer, User> subMap = Database.getInstance().getTopic(topic);
+		HashMap<User, Integer> subMap = Database.getInstance().getTopic(topic);
 		StompFrame ansFrame;
-		for (Map.Entry<Integer, User> subscriptionEntry : subMap.entrySet()) {
-			ansFrame = createMessageFrame(topic, subscriptionEntry.getKey(), receivedFrame.getFrameBody());
-			connections.send(subscriptionEntry.getValue().getConnectionId(), ansFrame.toString());
+		for (Map.Entry<User, Integer> subscriptionEntry : subMap.entrySet()) {
+			ansFrame = createMessageFrame(topic, subscriptionEntry.getValue(), receivedFrame.getFrameBody());
+			connections.send(subscriptionEntry.getKey().getConnectionId(), ansFrame);
 		}
 	}
 
@@ -92,14 +89,16 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		String password = headersMap.get("password");
 		LoginStatus loginStatus = Database.getInstance().login(connectionId, username, password);
 		StompFrame answerFrame = getConnectAnswerFrame(headersMap, username, loginStatus);
-		connections.send(connectionId, answerFrame.toString());
+		connections.send(connectionId, answerFrame);
 	}
 
 	private void handleDisconnect(StompFrame receivedFrame) {
 		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeadersMap().get("receipt-id"), "");
-		connections.send(connectionId, ansFrame.toString());
+		connections.send(connectionId, ansFrame);
+
 		database.logout(connectionId);
 		database.unsubscribeToAll(connectionId);
+
 		connectionsUnsubToAll(connectionId);
 		connections.disconnect(connectionId);
 		shouldTerminate = true;
@@ -110,7 +109,6 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol {
 		for (Map.Entry<Integer, String> entry : userSubMap.entrySet()) {
 			connections.unsubscribe(entry.getValue(), connectionId);
 		}
-
 	}
 
 	private StompFrame createMessageFrame(String destination, Integer subscription, String frameBody) {

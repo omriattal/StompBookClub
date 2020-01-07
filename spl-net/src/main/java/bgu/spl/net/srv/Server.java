@@ -1,7 +1,7 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
+import bgu.spl.net.api.StompMessagingProtocol;
 
 import java.io.Closeable;
 import java.util.function.Supplier;
@@ -22,7 +22,7 @@ public interface Server<T> extends Closeable {
 	 * @param <T>                   The Message Object for the protocol
 	 * @return A new Thread per client server
 	 */
-	static <T> Server<T> threadPerClient(int port, Supplier<MessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> encoderDecoderFactory) {
+	static <T> Server<T> threadPerClient(int port, Supplier<StompMessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> encoderDecoderFactory) {
 
 		return new BaseServer<T>(port, protocolFactory, encoderDecoderFactory) {
 			@Override
@@ -43,7 +43,7 @@ public interface Server<T> extends Closeable {
 	 * @param <T>                   The Message Object for the protocol
 	 * @return A new reactor server
 	 */
-	static <T> Server<T> reactor(int nthreads, int port, Supplier<MessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> encoderDecoderFactory) {
+	static <T> Server<T> reactor(int nthreads, int port, Supplier<StompMessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> encoderDecoderFactory) {
 		return new Reactor<T>(nthreads, port, protocolFactory, encoderDecoderFactory);
 	}
 
