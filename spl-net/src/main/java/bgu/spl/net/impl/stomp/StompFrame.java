@@ -27,7 +27,6 @@ public class StompFrame {
 		frameBody = createFrameBody(lines, currentLine);
 	}
 
-
 	private String createFrameBody(String[] lines, int currentLine) {
 		StringBuilder frameBody = new StringBuilder("");
 		while (!lines[currentLine].equals("\u0000")) {
@@ -72,6 +71,10 @@ public class StompFrame {
 
 	public void setHeadersMap(HashMap<String, String> headersMap) {
 		this.headersMap = headersMap;
+	}
+
+	public void addHeader(String title, String value){
+		headersMap.put(title, value);
 	}
 
 	public String getFrameBody() {

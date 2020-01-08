@@ -1,15 +1,14 @@
 package bgu.spl.net.srv;
 
+import bgu.spl.net.impl.stomp.StompFrame;
+
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConnectionsImpl<T> implements Connections<T> {
+public class ConnectionsImpl implements Connections<StompFrame> {
 
-	private ConcurrentHashMap<Integer, ConnectionHandler<T>> connectionHandlerMap;
-	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Integer>> channelMap;
+	private ConcurrentHashMap<Integer, ConnectionHandler<StompFrame>> connectionHandlerMap;
+	private ConcurrentHashMap<String, ConcurrentHashMap<Integer, Integer>> channelMap;
 
 	public ConnectionsImpl() {
 		connectionHandlerMap = new ConcurrentHashMap<>();
@@ -17,7 +16,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
 	}
 
 	@Override
-	public boolean send(int connectionId, T msg) {
+	public boolean send(int connectionId, StompFrame msg) {
 		if (connectionHandlerMap.containsKey(connectionId)) {
 			connectionHandlerMap.get(connectionId).send(msg);
 			return true;
@@ -26,36 +25,42 @@ public class ConnectionsImpl<T> implements Connections<T> {
 	}
 
 	@Override
-	public void send(String channel, T msg) {
+	//TODO: refactor all the code that overlaps this method
+	public void send(String channel, StompFrame msg) {
 		if (channelMap.containsKey(channel)) {
-			for (Integer id : channelMap.get(channel)) {
-				connectionHandlerMap.get(id).send(msg);
+			for (Map.Entry<Integer, Integer> subscription : channelMap.get(channel).entrySet()) {
+				msg.addHeader("subscription", subscription.getValue().toString());
+				send(subscription.getKey(), msg);
 			}
 		}
 	}
 
 	@Override
-	public void connect(int connectionId ,ConnectionHandler<T> connectionHandler) {
+	public void connect(int connectionId ,ConnectionHandler<StompFrame> connectionHandler) {
 		connectionHandlerMap.put(connectionId, connectionHandler);
 	}
 
 	@Override
 	public void disconnect(int connectionId) {
-		for (Map.Entry<String, ConcurrentLinkedQueue<Integer>> entry : channelMap.entrySet()) {
+		for (Map.Entry<String, ConcurrentHashMap<Integer, Integer>> entry : channelMap.entrySet()) {
 			entry.getValue().remove(connectionId);
 		}
 		connectionHandlerMap.remove(connectionId);
 	}
 
 	@Override
-	public void subscribe(String topic, int connectionId) {
-		Queue<Integer> channelQ = channelMap.get(topic);
-		channelQ.add(connectionId);
+	public void subscribe(String topic, int connectionId, int subscriptionId) {
+		ConcurrentHashMap<Integer, Integer> channelQ = channelMap.get(topic);
+		if(channelQ == null){
+			channelQ = new ConcurrentHashMap<>();
+			channelMap.put(topic, channelQ);
+		}
+		channelQ.put(connectionId, subscriptionId);
 	}
 
 	@Override
 	public void unsubscribe(String topic, int connectionId) {
-		Queue<Integer> channelQ = channelMap.get(topic);
+		ConcurrentHashMap<Integer, Integer> channelQ = channelMap.get(topic);
 		channelQ.remove(connectionId);
 	}
 
