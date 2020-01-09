@@ -10,8 +10,8 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 include_directories(include)
 add_executable(Boost_Echo_client
-        include/connectionHandler.h
-        src/connectionHandler.cpp
+        include/ConnectionHandler.h
+        src/ConnectionHandler.cpp
         src/echoClient.cpp src/StompClient.cpp
         include/StompClient.h
         src/StompFrame.cpp

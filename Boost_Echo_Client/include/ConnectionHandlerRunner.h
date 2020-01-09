@@ -5,12 +5,13 @@
 #ifndef BOOST_ECHO_CLIENT_CONNECTIONHANDLERRUNNER_H
 #define BOOST_ECHO_CLIENT_CONNECTIONHANDLERRUNNER_H
 
-#include "connectionHandler.h"
-#include "StompFrame.h"
+#include "ConnectionHandler.h"
 
 class ConnectionHandlerRunner {
 private:
-
+    ConnectionHandler connectionHandler;
+    std::vector<std::string> sendList;
+    std::vector<std::string> receivedList;
 public:
     void run();
 };
