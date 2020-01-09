@@ -1,7 +1,6 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocol;
 
 import java.io.IOException;
@@ -17,12 +16,11 @@ public class Reactor<T> implements Server<T> {
 	private final Supplier<StompMessagingProtocol<T>> protocolFactory;
 	private final Supplier<MessageEncoderDecoder<T>> readerFactory;
 	private final ActorThreadPool pool;
+	private final Connections<T> connections;
+	private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
 	private Selector selector;
 	private AtomicInteger connectionId;
-	private final Connections<T> connections;
-
 	private Thread selectorThread;
-	private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
 
 	public Reactor(int numThreads, int port, Supplier<StompMessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> readerFactory) {
 
@@ -96,8 +94,7 @@ public class Reactor<T> implements Server<T> {
 	private void handleAccept(ServerSocketChannel serverChan, Selector selector) throws IOException {
 		SocketChannel clientChan = serverChan.accept();
 		clientChan.configureBlocking(false);
-		final NonBlockingConnectionHandler<T> handler = new NonBlockingConnectionHandler<>(readerFactory.get(),
-				protocolFactory.get(), clientChan, this, connectionId.get(), connections);
+		final NonBlockingConnectionHandler<T> handler = new NonBlockingConnectionHandler<>(readerFactory.get(), protocolFactory.get(), clientChan, this, connectionId.get(), connections);
 
 		connections.connect(connectionId.getAndIncrement(), handler);
 		clientChan.register(selector, SelectionKey.OP_READ, handler);

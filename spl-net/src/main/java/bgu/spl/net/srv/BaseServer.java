@@ -1,7 +1,6 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocol;
 
 import java.io.IOException;
@@ -15,9 +14,9 @@ public abstract class BaseServer<T> implements Server<T> {
 	private final int port;
 	private final Supplier<StompMessagingProtocol<T>> protocolFactory;
 	private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
+	private final Connections<T> connections;
 	private ServerSocket sock;
 	private AtomicInteger connectionId;
-	private final Connections<T> connections;
 
 	public BaseServer(int port, Supplier<StompMessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> encdecFactory) {
 
@@ -41,10 +40,9 @@ public abstract class BaseServer<T> implements Server<T> {
 
 				Socket clientSock = serverSock.accept();
 
-				BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(clientSock,
-						encdecFactory.get(), connectionId.get(), connections, protocolFactory.get());
+				BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(clientSock, encdecFactory.get(), connectionId.get(), connections, protocolFactory.get());
 
-				connections.connect(connectionId.getAndIncrement() ,handler);
+				connections.connect(connectionId.getAndIncrement(), handler);
 
 				execute(handler);
 			}

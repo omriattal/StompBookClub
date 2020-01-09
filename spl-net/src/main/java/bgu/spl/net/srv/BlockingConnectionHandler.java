@@ -13,17 +13,13 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
 	private final StompMessagingProtocol<T> protocol;
 	private final MessageEncoderDecoder<T> encdec;
 	private final Socket sock;
+	private final int connectionId;
+	private final Connections<T> connections;
 	private BufferedInputStream in;
 	private BufferedOutputStream out;
 	private volatile boolean connected = true;
-	private final int connectionId;
-	private final Connections<T> connections;
 
-	public BlockingConnectionHandler(Socket sock,
-	                                 MessageEncoderDecoder<T> reader,
-	                                 int connectionId,
-	                                 Connections<T> connections,
-	                                 StompMessagingProtocol<T> protocol) {
+	public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, int connectionId, Connections<T> connections, StompMessagingProtocol<T> protocol) {
 		this.sock = sock;
 		this.encdec = reader;
 		this.connectionId = connectionId;

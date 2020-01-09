@@ -58,6 +58,10 @@ public class StompFrame {
 		return frameString.toString();
 	}
 
+	public void addHeader(String headerName, String headerValue) {
+		headersMap.putIfAbsent(headerName, headerValue);
+	}
+
 	public StompCommand getCommandType() {
 		return commandType;
 	}

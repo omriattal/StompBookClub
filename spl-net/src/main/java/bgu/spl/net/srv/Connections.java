@@ -6,11 +6,13 @@ public interface Connections<T> {
 
 	void send(String channel, T msg);
 
-	void connect(int connectionId ,ConnectionHandler<T> connectionHandler);
+	void connect(int connectionId, ConnectionHandler<T> connectionHandler);
 
 	void disconnect(int connectionId);
 
 	void subscribe(String topic, int connectionId, int subscriptionId);
 
-	void unsubscribe(String topic, int connectionId);
+	void subscribe(String topic, int connectionId, int subId);
+
+	void unsubscribe(int subId, int connectionId);
 }
