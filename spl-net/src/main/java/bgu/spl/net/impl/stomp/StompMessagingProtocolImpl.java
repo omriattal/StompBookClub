@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompFrame> {
-	private static Integer messageCount = 1;
 	private Connections<StompFrame> connections;
 	private int connectionId;
 	private boolean shouldTerminate = false;
 	private Database database;
+	private static Integer messageCount = 1;
 
 	@Override
 	public void start(int connectionId, Connections<StompFrame> connections) {
@@ -52,10 +52,10 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 	private void handleSubscribe(StompFrame receivedFrame) {
 		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
 		String topic = headersMap.get("destination");
-		int subId = new Integer(headersMap.get("subscription"));
+		Integer subId = new Integer(headersMap.get("subscription"));
 
 		database.subscribe(connectionId, topic, subId);
-		connections.subscribe(topic, connectionId, subId);
+		connections.subscribe(topic, connectionId);
 
 		StompFrame ansFrame = createReceiptFrame(headersMap.get("receipt"), "");
 		connections.send(connectionId, ansFrame);
@@ -75,8 +75,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 	private void handleSend(StompFrame receivedFrame) {
 		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
 		String topic = headersMap.get("destination");
-		StompFrame ansFrame = createMessageFrame(topic, receivedFrame.getFrameBody());
-		connections.send(topic, ansFrame);
+		HashMap<User, Integer> subMap = Database.getInstance().getTopic(topic);
+		StompFrame ansFrame;
+		for (Map.Entry<User, Integer> subscriptionEntry : subMap.entrySet()) {
+			ansFrame = createMessageFrame(topic, subscriptionEntry.getValue(), receivedFrame.getFrameBody());
+			connections.send(subscriptionEntry.getKey().getConnectionId(), ansFrame);
+		}
 	}
 
 	private void handleConnect(StompFrame receivedFrame) {
@@ -107,8 +111,9 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 		}
 	}
 
-	private StompFrame createMessageFrame(String destination, String frameBody) {
+	private StompFrame createMessageFrame(String destination, Integer subscription, String frameBody) {
 		HashMap<String, String> headersMap = new HashMap<>();
+		headersMap.put("subscription", subscription.toString());
 		headersMap.put("message-id", messageCount.toString());
 		headersMap.put("destination", destination);
 		messageCount++;
