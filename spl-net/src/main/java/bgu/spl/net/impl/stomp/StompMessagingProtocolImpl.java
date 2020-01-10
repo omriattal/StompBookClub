@@ -105,6 +105,11 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 	private StompFrame getConnectAnswerFrame(HashMap<String, String> headersMap, String username, LoginStatus loginStatus) {
 		HashMap<String, String> ansHeadersMap = new HashMap<>();
 		switch (loginStatus) {
+			case CLIENT_ALREADY_CONNECTED:{
+				ansHeadersMap.put("message","client already logged in to a user");
+				return createFrame(StompCommand.ERROR, ansHeadersMap, "Failed to login user: " + username + "\n Reason: client already logged in to a user");
+			}
+
 			case ADDED_NEW_USER:
 			case LOGGED_IN_SUCCESSFULLY: {
 				ansHeadersMap.put("version", headersMap.get("accept-version"));

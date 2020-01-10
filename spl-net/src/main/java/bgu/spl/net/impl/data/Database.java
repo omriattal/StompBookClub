@@ -21,6 +21,9 @@ public class Database {
 	}
 
 	public LoginStatus login(int connectionId, String username, String password) {
+		if(connectionsIdMap.containsKey(connectionId)){
+			return LoginStatus.CLIENT_ALREADY_CONNECTED;
+		}
 		if (addNewUserCase(connectionId, username, password)) {
 			return LoginStatus.ADDED_NEW_USER;
 		}
@@ -41,6 +44,7 @@ public class Database {
 			else {
 				user.login();
 				user.setConnectionId(connectionId);
+				connectionsIdMap.put(connectionId, user);
 				return LoginStatus.LOGGED_IN_SUCCESSFULLY;
 			}
 		}
@@ -62,6 +66,7 @@ public class Database {
 
 	public void logout(int connectionsId) {
 		connectionsIdMap.get(connectionsId).logout();
+		connectionsIdMap.remove(connectionsId);
 	}
 
 	private static class Instance {
