@@ -21,7 +21,8 @@ private:
 	std::map<std::string, std::vector<std::string>> borrowedBooks;
 	std::map<std::string, std::vector<std::string>> pendingBorrows;
 	std::map<int, StompFrame> receiptIdMap;
-	std::map<int, std::string> subscriptionMap;
+	std::map<int, std::string> subIdToGenreMap;
+	std::map<std::string, int> genreToSubIdMap;
 
 	void incrementSubId();
 
@@ -36,6 +37,10 @@ public:
 	void addFrameWithReceipt(int receiptId, const StompFrame& stompFrame);
 
 	StompFrame getFrameFromReceipt(int receiptId);
+
+	int getSubId(const std::string &genre);
+
+	std::string getGenre(int subId);
 
 	void subscribe(const std::string& topic, int subId);
 

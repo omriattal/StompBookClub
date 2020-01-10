@@ -38,7 +38,7 @@ public:
 
 	std::string toString();
 
-	void removeHeader(const std::string& key);
+	std::string removeHeader(const std::string& key);
 };
 
 

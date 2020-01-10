@@ -43,12 +43,15 @@ StompFrame User::getFrameFromReceipt(int receiptId) {
 }
 
 void User::subscribe(const std::string& topic, int subId) {
-	subscriptionMap.insert(std::make_pair(subId, topic));
+	subIdToGenreMap.insert(std::make_pair(subId, topic));
+	genreToSubIdMap.insert(std::make_pair(topic, subId));
 	incrementSubId();
 }
 
 void User::unsubscribe(int subId) {
-	subscriptionMap.erase(subId);
+	std::string topic = subIdToGenreMap[subId];
+	subIdToGenreMap.erase(subId);
+	genreToSubIdMap.erase(topic);
 }
 
 
@@ -81,6 +84,14 @@ void User::addToPendingBorrowBooks(std::string topic, std::string book) {
 
 void User::incrementSubId() {
 	currentSubId++;
+}
+
+int User::getSubId(const std::string &genre) {
+	return genreToSubIdMap[genre];
+}
+
+std::string User::getGenre(int subId) {
+	return subIdToGenreMap[subId];
 }
 
 

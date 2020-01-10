@@ -31,6 +31,8 @@ public:
 	void process(const StompFrame& frame);
 
 	bool shouldTerminate();
+
+	void sendFrame(StompFrame &frame) const;
 };
 
 
