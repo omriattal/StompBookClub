@@ -14,9 +14,11 @@ void StompProtocol::process(const StompFrame &frame) {
 		handleConnect(frame);
 	} else if (command == "SUBSCRIBE") {
 		handleSubscribe(frame);
+	} else if (command == "UNSUBSCRIBE") {
+		handleUnsubscribe(frame);
 	} else if (command == "SEND") {
-
-	} else if (command == "RECEIPT"){
+		handleSend(frame);
+	} else if (command == "RECEIPT") {
 		handleReceipt(frame);
 	}
 }
@@ -45,11 +47,20 @@ void StompProtocol::handleConnect(StompFrame frame) {
 void StompProtocol::handleReceipt(StompFrame receipt) {
 	int receiptId = std::stoi(receipt.getHeader("receipt-id"));
 	StompFrame frameFromReceipt = activeUser->getFrameFromReceipt(receiptId);
-	if(frameFromReceipt.getCommand() == "SUBSCRIBE"){
+	if (frameFromReceipt.getCommand() == "SUBSCRIBE") {
 		int subId = std::stoi(frameFromReceipt.getHeader("id"));
 		std::string topic = frameFromReceipt.getHeader("destination");
 		activeUser->subscribe(topic, subId);
 	}
+}
+
+void StompProtocol::handleSend(StompFrame frame) {
+
+}
+
+void StompProtocol::handleUnsubscribe(StompFrame frame) {
+	int receiptId = activeUser->getCurrentReceiptId();
+
 }
 
 

@@ -1,18 +1,23 @@
 #include <string>
 #include <sstream>
+#include <utility>
 #include "StompFrame.h"
 
-StompFrame::StompFrame() : command(""), headers(), body("") {}
+StompFrame::StompFrame() : command(""), headersMap(), body("") {}
 
 void StompFrame::addHeader(std::string key, std::string value) {
-	headers.insert(key, value);
+	headersMap.insert(std::move(key), std::move(value));
 }
 
-std::string StompFrame::getHeader(std::string key) {
-	return headers.find(key)->second;
+std::string StompFrame::getHeader(const std::string& key) {
+	return headersMap.find(key)->second;
 }
 
-StompFrame &StompFrame::createStompFrame(const std::string &message) {
+void StompFrame::removeHeader(const std::string& key){
+	headersMap.erase(key);
+}
+
+StompFrame StompFrame::createStompFrame(const std::string &message) {
 	std::vector<std::string> lines = split(message, ' ');
 	StompFrame stompFrame;
 	stompFrame.command = lines[0];
@@ -34,12 +39,12 @@ std::string StompFrame::toString() {
 	std::string stringed;
 	stringed.append(command);
 	stringed.append("\n");
-	for (auto &pair:headers) {
+	for (auto &pair:headersMap) {
 		stringed.append(pair.first + ":" + pair.second);
 		stringed.append("\n");
 	}
 	stringed.append("\n");
-	if (body != ("")) {
+	if (!body.empty()) {
 		stringed.append("\n");
 		stringed.append(body);
 	}
@@ -67,11 +72,11 @@ void StompFrame::setCommand(const std::string &command) {
 }
 
 const std::map<std::string, std::string> &StompFrame::getHeaders() const {
-	return headers;
+	return headersMap;
 }
 
 void StompFrame::setHeaders(const std::map<std::string, std::string> &headers) {
-	StompFrame::headers = headers;
+	StompFrame::headersMap = headers;
 }
 
 const std::string &StompFrame::getBody() const {

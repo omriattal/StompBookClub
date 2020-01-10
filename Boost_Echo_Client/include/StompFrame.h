@@ -9,7 +9,7 @@
 class StompFrame {
 private:
 	std::string command;
-	std::map<std::string, std::string> headers;
+	std::map<std::string, std::string> headersMap;
 	std::string body;
 
 	static std::vector<std::string> split(const std::string &s, char delimiter);
@@ -19,10 +19,10 @@ public:
 
 	void addHeader(std::string key, std::string value);
 
-	std::string getHeader(std::string key);
+	std::string getHeader(const std::string& key);
 
 
-	static StompFrame &createStompFrame(const std::string &message);
+	static StompFrame createStompFrame(const std::string &message);
 
 	const std::string &getCommand() const;
 
@@ -37,6 +37,8 @@ public:
 	void setBody(const std::string &body);
 
 	std::string toString();
+
+	void removeHeader(const std::string& key);
 };
 
 

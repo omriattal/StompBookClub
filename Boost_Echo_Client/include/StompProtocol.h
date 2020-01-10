@@ -19,16 +19,18 @@ private:
 	void handleConnect(StompFrame frame);
 
 	void handleSubscribe(StompFrame frame);
+
+	void handleReceipt(StompFrame frame);
+
+	void handleSend(StompFrame frame);
+
+	void handleUnsubscribe(StompFrame frame);
 public:
 	explicit StompProtocol(ConnectionHandler *connectionHandler);
 
 	void process(const StompFrame& frame);
 
-
-
 	bool shouldTerminate();
-
-	void handleReceipt(StompFrame frame);
 };
 
 
