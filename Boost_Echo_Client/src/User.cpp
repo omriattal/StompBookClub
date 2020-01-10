@@ -7,8 +7,10 @@
 #include <utility>
 
 User::User(std::string &username, std::string &password) :
-		username{username}, currentSubId(1),
+		username{username},
 		password{password},
+		currentSubId(1),
+		currentReceiptId(1),
 		borrowedBooks(),
 		pendingBorrows(),
 		receiptIdMap() {}

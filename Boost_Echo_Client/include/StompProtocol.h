@@ -27,6 +27,8 @@ public:
 
 
 	bool shouldTerminate();
+
+	void handleReceipt(StompFrame frame);
 };
 
 
