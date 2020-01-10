@@ -11,8 +11,7 @@ User::User(std::string &username, std::string &password) :
 		password{password},
 		borrowedBooks(),
 		pendingBorrows(),
-		receiptIdMap(),
-		subscriptionMap() {}
+		receiptIdMap() {}
 
 std::string User::getUsername() { return username; }
 
@@ -30,6 +29,8 @@ void User::addBook(std::string topic, std::string book) {
 }
 
 //TODO: make sure this actually saves the frames to the map.
+//TODO: consider making Eli a king.
+
 void User::addFrameWithReceipt(int receiptId, const StompFrame& stompFrame) {
 	receiptIdMap.insert(std::make_pair(receiptId, stompFrame));
 	currentReceiptId++;
