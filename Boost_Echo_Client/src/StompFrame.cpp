@@ -13,8 +13,10 @@ std::string StompFrame::getHeader(const std::string& key) {
 	return headersMap.find(key)->second;
 }
 
-void StompFrame::removeHeader(const std::string& key){
-	headersMap.erase(key);
+std::string StompFrame::removeHeader(const std::string& key){
+	 std::string value = headersMap[key];
+	 headersMap.erase(key);
+	 return value;
 }
 
 StompFrame StompFrame::createStompFrame(const std::string &message) {

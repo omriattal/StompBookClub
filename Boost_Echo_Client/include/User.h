@@ -18,7 +18,7 @@ private:
 	int currentSubId;
 	int currentReceiptId;
 	std::map<std::string, std::vector<std::string>> inventory;
-	std::map<std::string, std::vector<std::string>> borrowedBooks;
+	std::map<std::string, std::map<std::string,std::string>> borrowedBooks;
 	std::map<std::string, std::vector<std::string>> pendingBorrows;
 	std::map<int, StompFrame> receiptIdMap;
 	std::map<int, std::string> subscriptionMap;
@@ -45,7 +45,11 @@ public:
 
 	bool lendBook(const std::string& topic, std::string book);
 
-	void addToBorrowedBooks(std::string topic, std::string book);
+	void addToBorrowedBooks(std::string topic, std::string book, std::string bookLender);
+
+	std::string getBookLender(std::string topic, std::string book);
+
+	void removeFromBorrowed(std::string topic,std::string book);
 
 	void addToPendingBorrowBooks(std::string topic, std::string book);
 

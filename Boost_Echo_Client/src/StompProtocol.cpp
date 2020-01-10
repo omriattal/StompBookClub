@@ -18,7 +18,7 @@ void StompProtocol::process(const StompFrame &frame) {
 		handleUnsubscribe(frame);
 	} else if (command == "SEND") {
 		handleSend(frame);
-	} else if (command == "RECEIPT") {
+	} else if (command == "RECEIPT"){
 		handleReceipt(frame);
 	}
 }
@@ -55,12 +55,24 @@ void StompProtocol::handleReceipt(StompFrame receipt) {
 }
 
 void StompProtocol::handleSend(StompFrame frame) {
-
-}
-
-void StompProtocol::handleUnsubscribe(StompFrame frame) {
-	int receiptId = activeUser->getCurrentReceiptId();
-
+	std::string command = frame.removeHeader("command");
+	std::string book = frame.removeHeader("book");
+	std::string topic = frame.getHeader("destination");
+	std::string username = activeUser->getUsername();
+	if(command == "add") {
+		frame.setBody(username + "has added the book " + book);
+		activeUser->addBook(topic,book);
+	} else if (command == "borrow") {
+		frame.setBody(username + "wishes to borrow " + book);
+		activeUser->addToPendingBorrowBooks(topic,book);
+	} else if(command == "return") {
+		std::string booklender = activeUser->getBookLender(topic,book);
+		frame.setBody("Returning " +book + " to "+ booklender);
+		activeUser->removeFromBorrowed(topic,book);
+	} else if(command == "status") {
+		frame.setBody("book status");
+	}
+	connectionHandler->sendFrameAscii(frame.toString(),'\0');
 }
 
 

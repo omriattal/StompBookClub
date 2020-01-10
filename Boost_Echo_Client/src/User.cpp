@@ -69,9 +69,9 @@ bool User::lendBook(const std::string& topic, std::string book) {
 	return std::remove(booksOfTopic.begin(), booksOfTopic.end(), book) != booksOfTopic.end();
 }
 
-void User::addToBorrowedBooks(std::string topic, std::string book) {
-	borrowedBooks.insert(std::make_pair(topic, std::vector<std::string>()));
-	borrowedBooks[topic].push_back(book);
+void User::addToBorrowedBooks(std::string topic, std::string book, std::string bookLender) {
+	borrowedBooks.insert(std::make_pair(topic,std::map<std::string,std::string>()));
+	borrowedBooks[topic].insert(std::make_pair(book,bookLender));
 }
 
 void User::addToPendingBorrowBooks(std::string topic, std::string book) {
@@ -81,6 +81,14 @@ void User::addToPendingBorrowBooks(std::string topic, std::string book) {
 
 void User::incrementSubId() {
 	currentSubId++;
+}
+
+std::string User::getBookLender(std::string topic, std::string book) {
+	return borrowedBooks[topic][book];
+}
+
+void User::removeFromBorrowed(std::string topic, std::string book) {
+	borrowedBooks[topic].erase(book);
 }
 
 
