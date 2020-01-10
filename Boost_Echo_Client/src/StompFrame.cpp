@@ -1,8 +1,7 @@
 #include <string>
+#include <sstream>
 #include "StompFrame.h"
 StompFrame::StompFrame():command(""), headers(),body("") {}
-
-
 
 void StompFrame::addHeader(std::string key,std::string value){
     headers.insert(key,value);
@@ -11,18 +10,18 @@ std::string StompFrame::getHeader(std::string key){
     return headers.find(key)->second;
 }
 
-StompFrame& StompFrame::parseString(std::string message){
+StompFrame& StompFrame::createStompFrame(const std::string& message){
     std::vector<std::string> lines = split(message, ' ');
     StompFrame stompFrame;
     stompFrame.command = lines[0];
     int currentLine = 1;
-    while(lines[currentLine] != ""){
+    while(!lines[currentLine].empty()){
         std::vector<std::string> splittedHeader = split(lines[currentLine],':');
         stompFrame.addHeader(splittedHeader[0],splittedHeader[1]);
         currentLine++;
     }
     currentLine++;
-    while (lines[currentLine] != "\0") {
+    while (currentLine <= lines.size()) {
         stompFrame.body += lines[currentLine++];
         stompFrame.body += '\n';
     }
@@ -82,5 +81,3 @@ const std::string &StompFrame::getBody() const {
 void StompFrame::setBody(const std::string &body) {
     StompFrame::body = body;
 }
-
-#include "StompFrame.h"

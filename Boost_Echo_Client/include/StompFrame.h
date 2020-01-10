@@ -21,7 +21,7 @@ public:
     std::string getHeader(std::string key);
 
 
-    static StompFrame & parseString(std::string message);
+    static StompFrame & createStompFrame(const std::string& message);
 
     const std::string &getCommand() const;
 

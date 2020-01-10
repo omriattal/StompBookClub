@@ -13,7 +13,7 @@ ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port
 ConnectionHandler::~ConnectionHandler() {
     close();
 }
- 
+
 bool ConnectionHandler::connect() {
     std::cout << "Starting connect to " 
         << host_ << ":" << port_ << std::endl;
@@ -82,24 +82,22 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
 		{
 			return false;
 		}
-		if(ch!='\0')  
+		if(ch!='\0')
 			frame.append(1, ch);
 	}while (delimiter != ch);
-	frame.append(1, ch);
     } catch (std::exception& e) {
 	std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
 	return false;
     }
     return true;
 }
- 
- 
+
 bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter) {
-	bool result=sendBytes(frame.c_str(),frame.length());
+	bool result = sendBytes(frame.c_str(),frame.length());
 	if(!result) return false;
 	return sendBytes(&delimiter,1);
 }
- 
+
 // Close down the connection properly.
 void ConnectionHandler::close() {
     try{

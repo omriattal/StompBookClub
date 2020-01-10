@@ -9,10 +9,12 @@
 
 class ConnectionHandlerRunner {
 private:
-    ConnectionHandler connectionHandler;
-    std::vector<std::string> sendList;
-    std::vector<std::string> receivedList;
+    ConnectionHandler *connectionHandler;
+    bool terminated;
 public:
+
+    ConnectionHandlerRunner(ConnectionHandler *connectionHandler);
+
     void run();
 };
 
