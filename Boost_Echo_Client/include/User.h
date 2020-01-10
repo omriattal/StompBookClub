@@ -13,20 +13,19 @@
 
 class User {
 private:
-	static User activeUser;
 	const std::string username;
 	const std::string password;
 	int currentSubId;
+	int currentReceiptId;
 	std::map<std::string, std::vector<std::string>> inventory;
 	std::map<std::string, std::vector<std::string>> borrowedBooks;
 	std::map<std::string, std::vector<std::string>> pendingBorrows;
-	std::map<int, StompFrame *> receiptIdMap;
+	std::map<int, StompFrame> receiptIdMap;
 	std::map<int, std::string> subscriptionMap;
 
 	void incrementSubId();
 
 public:
-	static User getActiveUser();
 
 	User(std::string &username, std::string &password);
 
@@ -34,21 +33,25 @@ public:
 
 	void addBook(std::string topic, std::string book);
 
-	void addFrame(int receiptId, StompFrame *stompFrame_ptr);
+	void addFrameWithReceipt(int receiptId, const StompFrame& stompFrame);
 
-	StompFrame getFrame(int receiptId);
+	StompFrame getFrameFromReceipt(int receiptId);
 
-	void subscribe(std::string topic, int subId);
+	void subscribe(const std::string& topic, int subId);
 
 	void unsubscribe(int subId);
 
-	bool hasBook(std::string topic, std::string book);
+	bool hasBook(const std::string& topic, const std::string& book);
 
-	void borrowBook(std::string topic, std::string book);
+	bool lendBook(const std::string& topic, std::string book);
 
 	void addToBorrowedBooks(std::string topic, std::string book);
 
 	void addToPendingBorrowBooks(std::string topic, std::string book);
+
+	int getCurrentSubId() const;
+
+	int getCurrentReceiptId() const;
 };
 
 

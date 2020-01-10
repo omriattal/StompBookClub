@@ -8,15 +8,23 @@
 
 #include <ConnectionHandler.h>
 #include <StompFrame.h>
+#include <User.h>
 
 class StompProtocol {
 private:
 	ConnectionHandler *connectionHandler;
 	bool terminate;
+	User *activeUser;
+
+	void handleConnect(StompFrame frame);
+
+	void handleSubscribe(StompFrame frame);
 public:
 	explicit StompProtocol(ConnectionHandler *connectionHandler);
 
-	void process(StompFrame frame);
+	void process(const StompFrame& frame);
+
+
 
 	bool shouldTerminate();
 };

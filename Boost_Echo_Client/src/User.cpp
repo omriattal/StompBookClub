@@ -6,11 +6,6 @@
 
 #include <utility>
 
-
-User User::getActiveUser() {
-	return activeUser;
-}
-
 User::User(std::string &username, std::string &password) :
 		username{username}, currentSubId(1),
 		password{password},
@@ -21,16 +16,30 @@ User::User(std::string &username, std::string &password) :
 
 std::string User::getUsername() { return username; }
 
+int User::getCurrentSubId() const {
+	return currentSubId;
+}
+
+int User::getCurrentReceiptId() const {
+	return currentReceiptId;
+}
+
 void User::addBook(std::string topic, std::string book) {
 	inventory.insert(std::make_pair(topic, std::vector<std::string>()));
 	inventory[topic].push_back(book);
 }
 
-void User::addFrame(int receiptId, StompFrame *stompFrame_ptr) {
-	receiptIdMap.insert(std::make_pair(receiptId, stompFrame_ptr));
+//TODO: make sure this actually saves the frames to the map.
+void User::addFrameWithReceipt(int receiptId, const StompFrame& stompFrame) {
+	receiptIdMap.insert(std::make_pair(receiptId, stompFrame));
+	currentReceiptId++;
 }
 
-void User::subscribe(std::string topic, int subId) {
+StompFrame User::getFrameFromReceipt(int receiptId) {
+	return receiptIdMap.find(receiptId)->second;
+}
+
+void User::subscribe(const std::string& topic, int subId) {
 	subscriptionMap.insert(std::make_pair(subId, topic));
 	incrementSubId();
 }
@@ -39,11 +48,9 @@ void User::unsubscribe(int subId) {
 	subscriptionMap.erase(subId);
 }
 
-StompFrame User::getFrame(int receiptId) {
-	return *(receiptIdMap.find(receiptId)->second);
-}
 
-bool User::hasBook(std::string topic, std::string book) {
+
+bool User::hasBook(const std::string& topic, const std::string& book) {
 	if (inventory.find(topic) == inventory.end()) {
 		std::vector<std::string> books = inventory[topic];
 		auto booksIterator = std::find(books.begin(), books.end(), book);
@@ -54,9 +61,9 @@ bool User::hasBook(std::string topic, std::string book) {
 	return false;
 }
 
-void User::borrowBook(std::string topic, std::string book) {
-	auto booksIterator = inventory[topic].begin();
-	inventory[topic].erase(booksIterator);
+bool User::lendBook(const std::string& topic, std::string book) {
+	std::vector<std::string> booksOfTopic = inventory[topic];
+	return std::remove(booksOfTopic.begin(), booksOfTopic.end(), book) != booksOfTopic.end();
 }
 
 void User::addToBorrowedBooks(std::string topic, std::string book) {
