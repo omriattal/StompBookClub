@@ -8,12 +8,12 @@ StompProtocol::StompProtocol(ConnectionHandler *connectionHandler) : connectionH
 }
 
 void StompProtocol::process(StompFrame frame) {
-    std::string command = frame.getCommand();
-    if(command == "CONNECT"){
+	std::string command = frame.getCommand();
+	if (command == "CONNECT") {
 
-    } else if (command == "CONNECTED"){
+	} else if (command == "CONNECTED") {
 
-    }
+	}
 }
 
 

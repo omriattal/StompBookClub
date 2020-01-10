@@ -9,13 +9,13 @@
 
 class ConnectionHandlerRunner {
 private:
-    ConnectionHandler *connectionHandler;
-    bool terminated;
+	ConnectionHandler *connectionHandler;
+	bool terminated;
 public:
 
-    ConnectionHandlerRunner(ConnectionHandler *connectionHandler);
+	ConnectionHandlerRunner(ConnectionHandler *connectionHandler);
 
-    void run();
+	void run();
 };
 
 

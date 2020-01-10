@@ -11,13 +11,14 @@
 
 class StompProtocol {
 private:
-    ConnectionHandler *connectionHandler;
-    bool terminate;
+	ConnectionHandler *connectionHandler;
+	bool terminate;
 public:
-    explicit StompProtocol(ConnectionHandler *connectionHandler);
+	explicit StompProtocol(ConnectionHandler *connectionHandler);
 
-    void process(StompFrame frame);
-    bool shouldTerminate();
+	void process(StompFrame frame);
+
+	bool shouldTerminate();
 };
 
 

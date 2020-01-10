@@ -8,36 +8,36 @@
 
 class StompFrame {
 private:
-    std::string command;
-    std::map<std::string,std::string> headers;
-    std::string body;
-    static std::vector<std::string> split(const std::string &s, char delimiter);
+	std::string command;
+	std::map<std::string, std::string> headers;
+	std::string body;
+
+	static std::vector<std::string> split(const std::string &s, char delimiter);
 
 public:
-    StompFrame();
+	StompFrame();
 
-    void addHeader(std::string key, std::string value);
+	void addHeader(std::string key, std::string value);
 
-    std::string getHeader(std::string key);
+	std::string getHeader(std::string key);
 
 
-    static StompFrame & createStompFrame(const std::string& message);
+	static StompFrame &createStompFrame(const std::string &message);
 
-    const std::string &getCommand() const;
+	const std::string &getCommand() const;
 
-    void setCommand(const std::string &command);
+	void setCommand(const std::string &command);
 
-    const std::map<std::string, std::string> &getHeaders() const;
+	const std::map<std::string, std::string> &getHeaders() const;
 
-    void setHeaders(const std::map<std::string, std::string> &headers);
+	void setHeaders(const std::map<std::string, std::string> &headers);
 
-    const std::string &getBody() const;
+	const std::string &getBody() const;
 
-    void setBody(const std::string &body);
+	void setBody(const std::string &body);
 
-    std::string toString();
+	std::string toString();
 };
-
 
 
 #endif //BOOST_ECHO_CLIENT_STOMPFRAME_H
