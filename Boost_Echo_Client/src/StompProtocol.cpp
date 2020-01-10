@@ -18,7 +18,7 @@ void StompProtocol::process(const StompFrame &frame) {
 		handleUnsubscribe(frame);
 	} else if (command == "SEND") {
 		handleSend(frame);
-	} else if (command == "RECEIPT"){
+	} else if (command == "RECEIPT") {
 		handleReceipt(frame);
 	}
 }
@@ -34,14 +34,14 @@ void StompProtocol::handleSubscribe(StompFrame frame) {
 	activeUser->addFrameWithReceipt(receiptId, frame);
 
 	//sending the frame
-	connectionHandler->sendFrameAscii(frame.toString(), '\0');
+	sendFrame(frame);
 }
 
 void StompProtocol::handleConnect(StompFrame frame) {
 	std::string username = frame.getHeader("login");
 	std::string password = frame.getHeader("passcode");
 	activeUser = new User(username, password);
-	connectionHandler->sendFrameAscii(frame.toString(), '\0');
+	sendFrame(frame);
 }
 
 void StompProtocol::handleReceipt(StompFrame receipt) {
@@ -74,5 +74,15 @@ void StompProtocol::handleSend(StompFrame frame) {
 	}
 	connectionHandler->sendFrameAscii(frame.toString(),'\0');
 }
+
+void StompProtocol::handleUnsubscribe(StompFrame frame) {
+	std::string genre = frame.removeHeader("genre");
+	int subId = activeUser->getSubId(genre);
+	frame.addHeader("id", std::to_string(subId));
+
+	sendFrame(frame);
+}
+
+void StompProtocol::sendFrame(StompFrame &frame) const { connectionHandler->sendFrameAscii(frame.toString(), '\0'); }
 
 

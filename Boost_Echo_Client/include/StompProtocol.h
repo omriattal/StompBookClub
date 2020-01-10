@@ -32,6 +32,7 @@ public:
 
 	bool shouldTerminate();
 
+	void sendFrame(StompFrame &frame) const;
 };
 
 
