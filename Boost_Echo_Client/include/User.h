@@ -25,6 +25,8 @@ private:
 	std::map<std::string, int> genreToSubIdMap;
 
 	void incrementSubId();
+	bool IsBookInInventory(std::string topic, std::string book);
+	bool isBookInBorrowedBooks(std::string topic,std::string book);
 
 public:
 

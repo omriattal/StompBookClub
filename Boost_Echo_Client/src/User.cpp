@@ -57,14 +57,7 @@ void User::unsubscribe(int subId) {
 
 
 bool User::hasBook(const std::string& topic, const std::string& book) {
-	if (inventory.find(topic) == inventory.end()) {
-		std::vector<std::string> books = inventory[topic];
-		auto booksIterator = std::find(books.begin(), books.end(), book);
-		if (booksIterator != books.end()) {
-			return true;
-		}
-	}
-	return false;
+	return isBookInBorrowedBooks(topic,book) || IsBookInInventory(topic,book);
 }
 
 bool User::lendBook(const std::string& topic, std::string book) {
@@ -100,6 +93,24 @@ int User::getSubId(const std::string &genre) {
 
 std::string User::getGenre(int subId) {
 	return subIdToGenreMap[subId];
+}
+
+bool User::isBookInBorrowedBooks(std::string topic, std::string book) {
+	if(borrowedBooks.find(topic) != borrowedBooks.end()) {
+		std::map<std::string,std::string> borrowedInTopic = borrowedBooks[topic];
+		return borrowedInTopic.find(book)!=borrowedInTopic.end();
+	}
+}
+
+bool User::IsBookInInventory(std::string topic, std::string book) {
+	if (inventory.find(topic) != inventory.end()) {
+		std::vector<std::string> books = inventory[topic];
+		auto booksIterator = std::find(books.begin(), books.end(), book);
+		if (booksIterator != books.end()) {
+			return true;
+		}
+	}
+	return false;
 }
 
 

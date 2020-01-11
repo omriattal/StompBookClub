@@ -21,7 +21,6 @@ public:
 
 	std::string getHeader(const std::string& key);
 
-
 	static StompFrame createStompFrame(const std::string &message);
 
 	const std::string &getCommand() const;
@@ -39,6 +38,10 @@ public:
 	std::string toString();
 
 	std::string removeHeader(const std::string& key);
+
+	bool findInFrameBody(const std::string subString);
+
+	std::string getNextStringInBody(std::string strFrom);
 };
 
 

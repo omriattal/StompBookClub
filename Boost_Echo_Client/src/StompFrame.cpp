@@ -89,3 +89,12 @@ const std::string &StompFrame::getBody() const {
 void StompFrame::setBody(const std::string &body) {
 	StompFrame::body = body;
 }
+
+bool StompFrame::findInFrameBody(const std::string subString) {
+	size_t found = body.find(subString);
+	return found != std::string::npos;
+}
+
+std::string StompFrame::getNextStringInBody(std::string strFrom) {
+	return body.substr(body.find(strFrom +" "));
+}

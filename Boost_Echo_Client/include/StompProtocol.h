@@ -25,6 +25,13 @@ private:
 	void handleSend(StompFrame frame);
 
 	void handleUnsubscribe(StompFrame frame);
+
+	void handleDisconnect(StompFrame frame);
+
+	void handleMessage(StompFrame frame);
+
+	void handleBorrow(StompFrame frame);
+
 public:
 	explicit StompProtocol(ConnectionHandler *connectionHandler);
 
