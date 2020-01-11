@@ -10,22 +10,27 @@ StompProtocol::StompProtocol(ConnectionHandler *connectionHandler) : connectionH
 void StompProtocol::process(const StompFrame &frame) {
 	const std::string &command = frame.getCommand();
 	if (command == "CONNECT") {
-		//TODO: handle the event where a connect frame was unsuccessful.
 		handleConnect(frame);
-	} else if (command == "SUBSCRIBE") {
-		handleSubscribe(frame);
-	} else if (command == "UNSUBSCRIBE") {
-		handleUnsubscribe(frame);
-	} else if (command == "SEND") {
-		handleSend(frame);
-	} else if (command == "DISCONNECT") {
-		handleDisconnect(frame);
-	} else if (command == "MESSAGE") {
-		handleMessage(frame);
-	} else if (command == "RECEIPT") {
-		handleReceipt(frame);
+	} else if (command == "CONNECTED") {
+		activeUser->login();
 	} else if (command == "ERROR") {
 		handleError(frame);
+	} else if (activeUser != nullptr && activeUser->isLoggedIn()) {
+		if (command == "SUBSCRIBE") {
+			handleSubscribe(frame);
+		} else if (command == "UNSUBSCRIBE") {
+			handleUnsubscribe(frame);
+		} else if (command == "SEND") {
+			handleSend(frame);
+		} else if (command == "DISCONNECT") {
+			handleDisconnect(frame);
+		} else if (command == "MESSAGE") {
+			handleMessage(frame);
+		} else if (command == "RECEIPT") {
+			handleReceipt(frame);
+		}
+	} else {
+		printToScreen("This action is not allowed until you are logged in.");
 	}
 }
 
@@ -57,11 +62,15 @@ void StompProtocol::handleReceipt(StompFrame receipt) {
 		int subId = std::stoi(frameFromReceipt.getHeader("id"));
 		std::string topic = frameFromReceipt.getHeader("destination");
 		activeUser->subscribe(topic, subId);
+
 	} else if (frameFromReceipt.getCommand() == "DISCONNECT") {
 		terminate = true;
+		activeUser->logout();
+
 	} else if (frameFromReceipt.getCommand() == "UNSUBSCRIBE") {
 		int subId = std::stoi(frameFromReceipt.getHeader("id"));
 		activeUser->unsubscribe(subId);
+
 	}
 }
 
@@ -175,7 +184,7 @@ void StompProtocol::handleStatusMessage(StompFrame frame) {
 StompFrame StompProtocol::createSendFrame(const std::string &topic, std::string frameBody) const {
 	StompFrame frameToSend;
 	frameToSend.setCommand("SEND");
-	frameToSend.addHeader("destination",topic);
+	frameToSend.addHeader("destination", topic);
 	frameToSend.setBody(frameBody);
 	return frameToSend;
 }

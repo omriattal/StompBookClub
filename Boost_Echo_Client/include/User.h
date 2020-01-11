@@ -16,6 +16,7 @@ class User {
 private:
 	const std::string username;
 	const std::string password;
+	bool loggedIn = false;
 	int currentSubId;
 	int currentReceiptId;
 	std::map<std::string, std::map<std::string, Book>> inventory;
@@ -38,6 +39,9 @@ public:
 
 	std::string getUsername();
 
+	void login();
+
+	void logout();
 
 	//receipt related methods
 	void addFrameWithReceipt(int receiptId, const StompFrame &stompFrame);
@@ -79,6 +83,8 @@ public:
 	bool removeFromPendingBorrowBooks(const std::string& topic, std::string book);
 
 	std::string topicToString(std::string topic);
+
+	bool isLoggedIn();
 };
 
 

@@ -152,6 +152,18 @@ std::string User::topicToString(std::string topic) {
 	return toReturn;
 }
 
+void User::login() {
+	loggedIn = true;
+}
+
+void User::logout() {
+	loggedIn = false;
+}
+
+bool User::isLoggedIn(){
+	return loggedIn;
+}
+
 
 
 
