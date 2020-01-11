@@ -1,55 +1,40 @@
 package bgu.spl.net.impl.data;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Database {
-	private HashMap<String, User> userMap;
-	private HashMap<Integer, User> connectionsIdMap;
-	private HashMap<String, HashMap<User, Integer>> topicMap;
+	private final ConcurrentHashMap<String, User> userMap;
+	private final ConcurrentHashMap<Integer, User> connectionsIdMap;
 
 	private Database() {
-		userMap = new HashMap<>();
-		topicMap = new HashMap<>();
-		connectionsIdMap = new HashMap<>();
-	}
-
-	private static class Instance {
-		static Database instance = new Database();
+		userMap = new ConcurrentHashMap<>();
+		connectionsIdMap = new ConcurrentHashMap<>();
 	}
 
 	public static Database getInstance() {
 		return Instance.instance;
 	}
 
-	public boolean userExists(String username) {
-		return userMap.containsKey(username);
-	}
-
 	public void addUser(User user) {
-		userMap.put(user.name, user);
-		connectionsIdMap.put(user.getConnectionId(), user);
-	}
-
-	public User getUser(String username) {
-		return userMap.get(username);
-	}
-
-	public User getUser(int connectionsId) { return connectionsIdMap.get(connectionsId);}
-
-	public HashMap<User, Integer> getTopic(String topic) {
-		return topicMap.get(topic);
+		userMap.putIfAbsent(user.name, user);
+		connectionsIdMap.putIfAbsent(user.getConnectionId(), user);
 	}
 
 	public LoginStatus login(int connectionId, String username, String password) {
-		if (!userExists(username)) {
-			User user = new User(connectionId, username, password);
-			user.login();
-			addUser(user);
+		if(connectionsIdMap.containsKey(connectionId)){
+			return LoginStatus.CLIENT_ALREADY_CONNECTED;
+		}
+		if (addNewUserCase(connectionId, username, password)) {
 			return LoginStatus.ADDED_NEW_USER;
 		}
 		else {
-			User user = getUser(username);
+			return userExistsCase(connectionId, username, password);
+		}
+	}
+
+	private LoginStatus userExistsCase(int connectionId, String username, String password) {
+		User user = userMap.get(username);
+		synchronized (user) {
 			if (user.isLoggedIn()) {
 				return LoginStatus.ALREADY_LOGGED_IN;
 			}
@@ -59,34 +44,33 @@ public class Database {
 			else {
 				user.login();
 				user.setConnectionId(connectionId);
+				connectionsIdMap.put(connectionId, user);
 				return LoginStatus.LOGGED_IN_SUCCESSFULLY;
 			}
 		}
 	}
 
-	public void logout(int connectionsId) {getUser(connectionsId).logout();}
-
-	public void subscribe(int connectionId, String topic, int subId) {
-		User user = connectionsIdMap.get(connectionId);
-		user.subscribe(subId, topic);
-		if (!topicMap.containsKey(topic)) {
-			topicMap.put(topic, new HashMap<>());
+	private boolean addNewUserCase(int connectionId, String username, String password) {
+		if (!userMap.containsKey(username)) {
+			synchronized (userMap) {
+				if (!userMap.containsKey(username)) {
+					User user = new User(connectionId, username, password);
+					user.login();
+					addUser(user);
+					return true;
+				}
+			}
 		}
-		topicMap.get(topic).put(user, subId);
+		return false;
 	}
 
-	public void unsubscribeToAll(int connectionsId) {
-		for (Map.Entry<Integer, String> subscriptionEntry : getUser(connectionsId).getSubscriptionMap().entrySet()) {
-			HashMap<User, Integer> topicToUnsub = topicMap.get(subscriptionEntry.getValue());
-			topicToUnsub.remove(getUser(connectionsId));
-		}
+	public void logout(int connectionsId) {
+		connectionsIdMap.get(connectionsId).logout();
+		connectionsIdMap.remove(connectionsId);
 	}
 
-	public void unsubscribe(int connectionId, int subId) {
-		User user = getUser(connectionId);
-		String topic = user.getTopic(subId);
-		topicMap.get(topic).remove(getUser(connectionId));
-		user.unsubscribe(subId);
+	private static class Instance {
+		static Database instance = new Database();
 	}
 
 

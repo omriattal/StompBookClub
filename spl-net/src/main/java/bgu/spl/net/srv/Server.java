@@ -9,11 +9,6 @@ import java.util.function.Supplier;
 public interface Server<T> extends Closeable {
 
 	/**
-	 * The main loop of the server, Starts listening and handling new clients.
-	 */
-	void serve();
-
-	/**
 	 * This function returns a new instance of a thread per client pattern server
 	 *
 	 * @param port                  The port for the server socket
@@ -46,5 +41,10 @@ public interface Server<T> extends Closeable {
 	static <T> Server<T> reactor(int nthreads, int port, Supplier<StompMessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> encoderDecoderFactory) {
 		return new Reactor<T>(nthreads, port, protocolFactory, encoderDecoderFactory);
 	}
+
+	/**
+	 * The main loop of the server, Starts listening and handling new clients.
+	 */
+	void serve();
 
 }

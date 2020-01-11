@@ -23,10 +23,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 	private final int connectionId;
 	private final Connections<T> connections;
 
-	public NonBlockingConnectionHandler(MessageEncoderDecoder<T> reader,
-	                                    StompMessagingProtocol<T> protocol,
-	                                    SocketChannel chan, Reactor<T> reactor,
-	                                    int connectionId, Connections<T> connections) {
+	public NonBlockingConnectionHandler(MessageEncoderDecoder<T> reader, StompMessagingProtocol<T> protocol, SocketChannel chan, Reactor<T> reactor, int connectionId, Connections<T> connections) {
 		this.chan = chan;
 		this.encdec = reader;
 		this.protocol = protocol;
@@ -34,6 +31,20 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 		this.connectionId = connectionId;
 		this.connections = connections;
 		protocol.start(connectionId, connections);
+	}
+
+	private static ByteBuffer leaseBuffer() {
+		ByteBuffer buff = BUFFER_POOL.poll();
+		if (buff == null) {
+			return ByteBuffer.allocateDirect(BUFFER_ALLOCATION_SIZE);
+		}
+
+		buff.clear();
+		return buff;
+	}
+
+	private static void releaseBuffer(ByteBuffer buff) {
+		BUFFER_POOL.add(buff);
 	}
 
 	public Runnable continueRead() {
@@ -105,20 +116,6 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 			}
 			else reactor.updateInterestedOps(chan, SelectionKey.OP_READ);
 		}
-	}
-
-	private static ByteBuffer leaseBuffer() {
-		ByteBuffer buff = BUFFER_POOL.poll();
-		if (buff == null) {
-			return ByteBuffer.allocateDirect(BUFFER_ALLOCATION_SIZE);
-		}
-
-		buff.clear();
-		return buff;
-	}
-
-	private static void releaseBuffer(ByteBuffer buff) {
-		BUFFER_POOL.add(buff);
 	}
 
 	@Override

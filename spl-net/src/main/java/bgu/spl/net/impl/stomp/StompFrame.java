@@ -58,16 +58,16 @@ public class StompFrame {
 		return frameString.toString();
 	}
 
+	public void addHeader(String headerName, String headerValue) {
+		headersMap.putIfAbsent(headerName, headerValue);
+	}
+
 	public StompCommand getCommandType() {
 		return commandType;
 	}
 
 	public void setCommandType(StompCommand commandType) {
 		this.commandType = commandType;
-	}
-
-	public HashMap<String, String> getHeadersMap() {
-		return headersMap;
 	}
 
 	public void setHeadersMap(HashMap<String, String> headersMap) {
@@ -80,5 +80,9 @@ public class StompFrame {
 
 	public void setFrameBody(String frameBody) {
 		this.frameBody = frameBody;
+	}
+
+	public String getHeader(String headerName) {
+		return headersMap.get(headerName);
 	}
 }
