@@ -28,6 +28,9 @@ private:
 
 	void handleDisconnect(StompFrame frame);
 
+	void handleError(StompFrame frame);
+
+	//message frame handling
 	void handleMessage(StompFrame frame);
 
 	void handleBorrowMessage(StompFrame frame);
@@ -38,25 +41,21 @@ private:
 
 	void handleHasBookMessage(StompFrame frame);
 
-	void handleError(StompFrame frame);
+	void handleTakingMessage(StompFrame frame);
+
+
+	StompFrame createSendFrame(const std::string &topic, std::string frameBody) const;
 
 	void sendFrame(StompFrame &frame) const;
 
 	void printToScreen(const std::string &message);
 
-
-
-
 public:
 	explicit StompProtocol(ConnectionHandler *connectionHandler);
 
-	void process(const StompFrame& frame);
+	void process(const StompFrame &frame);
 
 	bool shouldTerminate();
-
-	void handleTakingMessage(StompFrame frame);
-
-	StompFrame createSendFrame(const std::string &topic, std::string frameBody) const;
 };
 
 

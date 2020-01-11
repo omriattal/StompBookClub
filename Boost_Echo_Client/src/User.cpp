@@ -144,10 +144,12 @@ std::string User::topicToString(std::string topic) {
 		for(const auto& topicBookIter : topicBooks) {
 			Book topicBook = topicBookIter.second;
 			if(topicBook.isAvailable()) {
-				toReturn += topicBook.name;
+				toReturn += topicBook.name +",";
 			}
 		}
 	}
+	toReturn = toReturn.substr(0,toReturn.size()-1);
+	return toReturn;
 }
 
 

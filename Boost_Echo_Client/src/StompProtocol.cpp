@@ -25,7 +25,7 @@ void StompProtocol::process(const StompFrame &frame) {
 	} else if (command == "RECEIPT") {
 		handleReceipt(frame);
 	} else if (command == "ERROR") {
-
+		handleError(frame);
 	}
 }
 
@@ -118,8 +118,6 @@ void StompProtocol::handleMessage(StompFrame frame) {
 		handleBorrowMessage(frame);
 	} else if (frame.findInFrameBody("Returning")) {
 		handleReturningMessage(frame);
-	} else if (frame.findInFrameBody("added")) {
-		printToScreen(frame.getBody());
 	} else if (frame.findInFrameBody("Taking")) {
 		handleTakingMessage(frame);
 	} else if (frame.findInFrameBody("has")) {
@@ -127,6 +125,7 @@ void StompProtocol::handleMessage(StompFrame frame) {
 	} else if (frame.findInFrameBody("status")) {
 		handleStatusMessage(frame);
 	}
+	printToScreen(frame.getHeader("destination") + ":" + frame.getBody());
 }
 
 void StompProtocol::handleBorrowMessage(StompFrame frame) {
@@ -137,13 +136,23 @@ void StompProtocol::handleBorrowMessage(StompFrame frame) {
 	}
 }
 
+void StompProtocol::handleReturningMessage(StompFrame frame) {
+	std::string topic = frame.getHeader("destination");
+	std::string usernameToReturn = frame.getNextStringInBody("to");
+	std::string bookName = frame.getNextStringInBody("Returning");
+	if (usernameToReturn == activeUser->getUsername()) {
+		activeUser->acquireBook(topic, bookName);
+		printToScreen(bookName + " was returned to your inventory");
+	}
+
+}
+
 void StompProtocol::handleTakingMessage(StompFrame frame) {
 	std::string usernameToTake = frame.getNextStringInBody("from");
 	std::string topic = frame.getHeader("destination");
 	std::string bookName = frame.getNextStringInBody("Taking");
 	if (usernameToTake == activeUser->getUsername()) {
 		activeUser->lendBook(topic, bookName);
-		printToScreen("Lent " + bookName);
 	}
 }
 
@@ -158,7 +167,6 @@ void StompProtocol::handleHasBookMessage(StompFrame frame) {
 	}
 }
 
-
 void StompProtocol::handleStatusMessage(StompFrame frame) {
 	std::string topic = frame.getHeader("destination");
 	process(createSendFrame(topic, activeUser->topicToString(topic)));
@@ -172,16 +180,10 @@ StompFrame StompProtocol::createSendFrame(const std::string &topic, std::string 
 	return frameToSend;
 }
 
-
-void StompProtocol::handleReturningMessage(StompFrame frame) {
-	std::string topic = frame.getHeader("destination");
-	std::string usernameToReturn = frame.getNextStringInBody("to");
-	std::string bookName = frame.getNextStringInBody("Returning");
-	if (usernameToReturn == activeUser->getUsername()) {
-		activeUser->acquireBook(topic, bookName);
-		printToScreen(bookName + " was returned to your inventory");
-	}
-
+void StompProtocol::handleError(StompFrame frame) {
+	printToScreen(frame.getHeader("message"));
+	printToScreen(frame.getBody());
+	terminate = true;
 }
 
 void StompProtocol::printToScreen(const std::string &message) {
@@ -192,9 +194,3 @@ void StompProtocol::printToScreen(const std::string &message) {
 void StompProtocol::sendFrame(StompFrame &frame) const {
 	connectionHandler->sendFrameAscii(frame.toString(), '\0');
 }
-
-void StompProtocol::handleError(StompFrame frame) {
-
-}
-
-
