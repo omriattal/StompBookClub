@@ -32,6 +32,8 @@ private:
 
 	void handleBorrow(StompFrame frame);
 
+	void handleReturning(StompFrame frame);
+
 public:
 	explicit StompProtocol(ConnectionHandler *connectionHandler);
 

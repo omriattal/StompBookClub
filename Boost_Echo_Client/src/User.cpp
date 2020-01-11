@@ -11,7 +11,6 @@ User::User(std::string &username, std::string &password) :
 		password{password},
 		currentSubId(1),
 		currentReceiptId(1),
-		borrowedBooks(),
 		pendingBorrows(),
 		receiptIdMap() {}
 
@@ -25,15 +24,10 @@ int User::getCurrentReceiptId() const {
 	return currentReceiptId;
 }
 
-void User::addBook(std::string topic, std::string book) {
-	inventory.insert(std::make_pair(topic, std::vector<std::string>()));
-	inventory[topic].push_back(book);
-}
-
 //TODO: make sure this actually saves the frames to the map.
 //TODO: consider making Eli a king.
 
-void User::addFrameWithReceipt(int receiptId, const StompFrame& stompFrame) {
+void User::addFrameWithReceipt(int receiptId, const StompFrame &stompFrame) {
 	receiptIdMap.insert(std::make_pair(receiptId, stompFrame));
 	currentReceiptId++;
 }
@@ -42,35 +36,19 @@ StompFrame User::getFrameFromReceipt(int receiptId) {
 	return receiptIdMap.find(receiptId)->second;
 }
 
-void User::subscribe(const std::string& topic, int subId) {
-	subIdToGenreMap.insert(std::make_pair(subId, topic));
-	genreToSubIdMap.insert(std::make_pair(topic, subId));
+void User::subscribe(const std::string &topic, int subId) {
+	subIdToTopicMap.insert(std::make_pair(subId, topic));
+	topicToSubIdMap.insert(std::make_pair(topic, subId));
 	incrementSubId();
 }
 
 void User::unsubscribe(int subId) {
-	std::string topic = subIdToGenreMap[subId];
-	subIdToGenreMap.erase(subId);
-	genreToSubIdMap.erase(topic);
+	std::string topic = subIdToTopicMap[subId];
+	subIdToTopicMap.erase(subId);
+	topicToSubIdMap.erase(topic);
 }
 
-
-
-bool User::hasBook(const std::string& topic, const std::string& book) {
-	return isBookInBorrowedBooks(topic,book) || IsBookInInventory(topic,book);
-}
-
-bool User::lendBook(const std::string& topic, std::string book) {
-	std::vector<std::string> booksOfTopic = inventory[topic];
-	return std::remove(booksOfTopic.begin(), booksOfTopic.end(), book) != booksOfTopic.end();
-}
-
-void User::addToBorrowedBooks(std::string topic, std::string book, std::string bookLender) {
-	borrowedBooks.insert(std::make_pair(topic,std::map<std::string,std::string>()));
-	borrowedBooks[topic].insert(std::make_pair(book,bookLender));
-}
-
-void User::addToPendingBorrowBooks(std::string topic, std::string book) {
+void User::addToPendingBorrowBooks(const std::string &topic, std::string book) {
 	pendingBorrows.insert(std::make_pair(topic, std::vector<std::string>()));
 	pendingBorrows[topic].push_back(book);
 }
@@ -79,39 +57,73 @@ void User::incrementSubId() {
 	currentSubId++;
 }
 
-std::string User::getBookLender(std::string topic, std::string book) {
-	return borrowedBooks[topic][book];
-}
-
-void User::removeFromBorrowed(std::string topic, std::string book) {
-	borrowedBooks[topic].erase(book);
-}
-
 int User::getSubId(const std::string &genre) {
-	return genreToSubIdMap[genre];
+	return topicToSubIdMap[genre];
 }
 
-std::string User::getGenre(int subId) {
-	return subIdToGenreMap[subId];
+std::string User::getTopic(int subId) {
+	return subIdToTopicMap[subId];
 }
 
-bool User::isBookInBorrowedBooks(std::string topic, std::string book) {
-	if(borrowedBooks.find(topic) != borrowedBooks.end()) {
-		std::map<std::string,std::string> borrowedInTopic = borrowedBooks[topic];
-		return borrowedInTopic.find(book)!=borrowedInTopic.end();
-	}
+
+//books related methods
+void User::addBook(const std::string &topic, const std::string &bookName, const std::string &owner) {
+	inventory.insert(std::make_pair(topic, std::map<std::string, Book>()));
+	inventory[topic].insert(std::make_pair(bookName, Book(bookName, owner)));
 }
 
-bool User::IsBookInInventory(std::string topic, std::string book) {
-	if (inventory.find(topic) != inventory.end()) {
-		std::vector<std::string> books = inventory[topic];
-		auto booksIterator = std::find(books.begin(), books.end(), book);
-		if (booksIterator != books.end()) {
+bool User::returnBook(const std::string &topic, const std::string &bookName) {
+	if (hasBookInInventory(topic, bookName)) {
+		std::string owner = inventory[topic][bookName].owner;
+		if (owner != username) {
+			inventory[topic].erase(bookName);
 			return true;
 		}
 	}
 	return false;
 }
+
+bool User::lendBook(const std::string &topic, const std::string &bookName) {
+	if (hasBookInInventory(topic, bookName)) {
+		Book book(inventory[topic][bookName]);
+		book.lend();
+		return true;
+	}
+	return false;
+}
+
+bool User::acquireBook(const std::string &topic, const std::string &bookName) {
+	if (bookExists(topic, bookName) && !hasBookInInventory(topic, bookName)) {
+		Book &book = inventory[topic][bookName];
+		book.acquire();
+		return true;
+	}
+	return false;
+}
+
+bool User::hasBookInInventory(const std::string &topic, const std::string &bookName) {
+	if (bookExists(topic, bookName)) {
+		Book book(inventory[topic][bookName]);
+		return book.isAvailable();
+	}
+	return false;
+}
+
+std::string User::getBookLender(const std::string &topic, const std::string &book) {
+	if(bookExists(topic, book)){
+		return inventory[topic][book].owner;
+	}
+	return "";
+}
+
+bool User::bookExists(const std::string &topic, const std::string &book) {
+	if (topicExists(topic)) {
+		return inventory[topic].find(book) != inventory[topic].end();
+	}
+	return false;
+}
+
+bool User::topicExists(const std::string &topic) const { return this->inventory.find(topic) != this->inventory.end(); }
 
 
 
