@@ -70,10 +70,6 @@ public class StompFrame {
 		this.commandType = commandType;
 	}
 
-	public HashMap<String, String> getHeadersMap() {
-		return headersMap;
-	}
-
 	public void setHeadersMap(HashMap<String, String> headersMap) {
 		this.headersMap = headersMap;
 	}
@@ -84,5 +80,9 @@ public class StompFrame {
 
 	public void setFrameBody(String frameBody) {
 		this.frameBody = frameBody;
+	}
+
+	public String getHeader(String headerName) {
+		return headersMap.get(headerName);
 	}
 }

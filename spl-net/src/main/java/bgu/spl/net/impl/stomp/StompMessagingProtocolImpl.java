@@ -48,40 +48,39 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 	}
 
 	private void handleSubscribe(StompFrame receivedFrame) {
-		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
-		String topic = headersMap.get("destination");
-		Integer subId = new Integer(headersMap.get("subscription"));
+		String topic = receivedFrame.getHeader("destination");
+		Integer subId = new Integer(receivedFrame.getHeader("subscription"));
 
 		connections.subscribe(topic, connectionId, subId);
 
-		StompFrame ansFrame = createReceiptFrame(headersMap.get("receipt"));
+		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeader("receipt"));
 		connections.send(connectionId, ansFrame);
 	}
 
 	private void handleUnsubscribe(StompFrame receivedFrame) {
-		int subId = new Integer(receivedFrame.getHeadersMap().get("id"));
+		int subId = new Integer(receivedFrame.getHeader("id"));
 		connections.unsubscribe(subId, connectionId);
+		StompFrame receiptFrame = createReceiptFrame(receivedFrame.getHeader("receipt"));
+		connections.send(connectionId,receiptFrame);
 	}
 
 	private void handleSend(StompFrame receivedFrame) {
-		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
-		String topic = headersMap.get("destination");
+		String topic = receivedFrame.getHeader("destination");
 
 		StompFrame ansFrame = createMessageFrame(topic, receivedFrame.getFrameBody());
 		connections.send(topic, ansFrame);
 	}
 
 	private void handleConnect(StompFrame receivedFrame) {
-		HashMap<String, String> headersMap = receivedFrame.getHeadersMap();
-		String username = headersMap.get("username");
-		String password = headersMap.get("password");
+		String username = receivedFrame.getHeader("username");
+		String password = receivedFrame.getHeader("password");
 		LoginStatus loginStatus = Database.getInstance().login(connectionId, username, password);
-		StompFrame answerFrame = getConnectAnswerFrame(headersMap, username, loginStatus);
+		StompFrame answerFrame = createConnectAnsFrame(receivedFrame, loginStatus);
 		connections.send(connectionId, answerFrame);
 	}
 
 	private void handleDisconnect(StompFrame receivedFrame) {
-		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeadersMap().get("receipt-id"));
+		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeader("receipt-id"));
 		connections.send(connectionId, ansFrame);
 
 		database.logout(connectionId);
@@ -98,8 +97,9 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 		return createFrame(StompCommand.MESSAGE, headersMap, frameBody);
 	}
 
-	private StompFrame getConnectAnswerFrame(HashMap<String, String> headersMap, String username, LoginStatus loginStatus) {
+	private StompFrame createConnectAnsFrame(StompFrame receivedFrame, LoginStatus loginStatus) {
 		HashMap<String, String> ansHeadersMap = new HashMap<>();
+		String username =receivedFrame.getHeader("login");
 		switch (loginStatus) {
 			case CLIENT_ALREADY_CONNECTED:{
 				ansHeadersMap.put("message","client already logged in to a user");
@@ -108,7 +108,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 
 			case ADDED_NEW_USER:
 			case LOGGED_IN_SUCCESSFULLY: {
-				ansHeadersMap.put("version", headersMap.get("accept-version"));
+				ansHeadersMap.put("version", receivedFrame.getHeader("accept-version"));
 				return createFrame(StompCommand.CONNECTED, ansHeadersMap, "");
 			}
 
