@@ -13,7 +13,6 @@ add_executable(Boost_Echo_client
         include/ConnectionHandler.h
         src/ConnectionHandler.cpp
         src/echoClient.cpp src/StompClient.cpp
-        include/StompClient.h
         src/StompFrame.cpp
-        include/StompFrame.h src/ConnectionHandlerRunner.cpp include/ConnectionHandlerRunner.h src/User.cpp include/User.h src/StompProtocol.cpp include/StompProtocol.h src/Book.cpp include/Book.h)
+        include/StompFrame.h src/User.cpp include/User.h src/StompProtocol.cpp include/StompProtocol.h src/Book.cpp include/Book.h include/StompClient.h)
 target_link_libraries(Boost_Echo_client ${Boost_LIBRARIES})

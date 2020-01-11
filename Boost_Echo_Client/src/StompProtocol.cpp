@@ -4,7 +4,7 @@
 
 #include "StompProtocol.h"
 
-StompProtocol::StompProtocol(ConnectionHandler *connectionHandler) : connectionHandler(connectionHandler), terminate() {
+StompProtocol::StompProtocol(ConnectionHandler &connectionHandler) : connectionHandler(connectionHandler), terminate() {
 }
 
 void StompProtocol::process(const StompFrame &frame) {
@@ -196,10 +196,13 @@ void StompProtocol::handleError(StompFrame frame) {
 }
 
 void StompProtocol::printToScreen(const std::string &message) {
-	//TODO: implement this
+	std::cout << message << std::endl;
 }
 
-
 void StompProtocol::sendFrame(StompFrame &frame) const {
-	connectionHandler->sendFrameAscii(frame.toString(), '\0');
+	connectionHandler.sendFrameAscii(frame.toString(), '\0');
+}
+
+StompProtocol::~StompProtocol() {
+	delete activeUser;
 }

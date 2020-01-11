@@ -12,9 +12,9 @@
 
 class StompProtocol {
 private:
-	ConnectionHandler *connectionHandler;
+	ConnectionHandler &connectionHandler;
 	bool terminate;
-	User *activeUser;
+	User *activeUser{};
 
 	void handleConnect(StompFrame frame);
 
@@ -51,7 +51,9 @@ private:
 	void printToScreen(const std::string &message);
 
 public:
-	explicit StompProtocol(ConnectionHandler *connectionHandler);
+	explicit StompProtocol(ConnectionHandler &connectionHandler);
+
+	~StompProtocol();
 
 	void process(const StompFrame &frame);
 
