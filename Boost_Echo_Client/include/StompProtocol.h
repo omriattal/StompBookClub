@@ -30,15 +30,22 @@ private:
 
 	void handleMessage(StompFrame frame);
 
-	void handleBorrow(StompFrame frame);
+	void handleBorrowMessage(StompFrame frame);
 
-	void handleReturning(StompFrame frame);
+	void handleReturningMessage(StompFrame frame);
 
-	void handleAdded(StompFrame frame);
+	void handleStatusMessage(StompFrame frame);
+
+	void handleHasBookMessage(StompFrame frame);
+
+	void handleError(StompFrame frame);
 
 	void sendFrame(StompFrame &frame) const;
 
 	void printToScreen(const std::string &message);
+
+
+
 
 public:
 	explicit StompProtocol(ConnectionHandler *connectionHandler);
@@ -47,7 +54,9 @@ public:
 
 	bool shouldTerminate();
 
-	void handelTaking(StompFrame frame);
+	void handleTakingMessage(StompFrame frame);
+
+	StompFrame createSendFrame(const std::string &topic, std::string frameBody) const;
 };
 
 

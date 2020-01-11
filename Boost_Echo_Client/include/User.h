@@ -75,6 +75,10 @@ public:
 	std::string getBookLender(const std::string& topic, const std::string& book);
 
 	void addToPendingBorrowBooks(const std::string& topic, std::string book);
+
+	bool removeFromPendingBorrowBooks(const std::string& topic, std::string book);
+
+	std::string topicToString(std::string topic);
 };
 
 
