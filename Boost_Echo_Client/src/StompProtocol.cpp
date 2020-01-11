@@ -18,7 +18,8 @@ void StompProtocol::process(const StompFrame &frame) {
 		handleUnsubscribe(frame);
 	} else if (command == "SEND") {
 		handleSend(frame);
-	} else if (command == "RECEIPT") {
+	} else if(command == "")
+	else if (command == "RECEIPT") {
 		handleReceipt(frame);
 	}
 }
@@ -72,7 +73,7 @@ void StompProtocol::handleSend(StompFrame frame) {
 	} else if(command == "status") {
 		frame.setBody("book status");
 	}
-	connectionHandler->sendFrameAscii(frame.toString(),'\0');
+	sendFrame(frame);
 }
 
 void StompProtocol::handleUnsubscribe(StompFrame frame) {
