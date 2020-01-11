@@ -6,12 +6,13 @@ public class StompServer {
 
 	public static void main(String[] args) {
 		Server<StompFrame> server;
-		if (args[0].toLowerCase().equals("reactor")) {
-			server = Server.reactor(new Integer(args[1]), 7777, StompMessagingProtocolImpl::new, StompEncoderDecoder::new);
+		if (args[1].toLowerCase().equals("reactor")) {
+			server = Server.reactor(7, new Integer(args[0]), StompMessagingProtocolImpl::new, StompEncoderDecoder::new);
+			server.serve();
 		}
-		else {
-			server = Server.threadPerClient(7777, StompMessagingProtocolImpl::new, StompEncoderDecoder::new);
+		else if (args[1].toLowerCase().equals("tpc")) {
+			server = Server.threadPerClient(new Integer(args[0]), StompMessagingProtocolImpl::new, StompEncoderDecoder::new);
+			server.serve();
 		}
-		server.serve();
 	}
 }
