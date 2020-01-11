@@ -82,10 +82,12 @@ public class ConnectionsImpl<T> implements Connections<T> {
 	@Override
 	public void unsubscribe(int subId, int connectionId) {
 		String topic = userSubMap.get(connectionId).get(subId);
+
 		topicRWLocksMap.get(topic).writeLock().lock();
 		ConcurrentHashMap<Integer, Integer> topicQ = topicMap.get(topic);
 		topicQ.remove(connectionId);
 		topicRWLocksMap.get(topic).writeLock().unlock();
+
 		userSubMap.get(connectionId).remove(subId);
 	}
 

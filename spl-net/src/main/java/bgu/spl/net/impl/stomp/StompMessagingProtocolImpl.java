@@ -60,11 +60,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 
 	private void handleUnsubscribe(StompFrame receivedFrame) {
 		int subId = new Integer(receivedFrame.getHeadersMap().get("id"));
-		StompFrame receiptFrame = createReceiptFrame(messageCount.toString());
-		messageCount++;
-
 		connections.unsubscribe(subId, connectionId);
-		connections.send(connectionId, receiptFrame);
 	}
 
 	private void handleSend(StompFrame receivedFrame) {
