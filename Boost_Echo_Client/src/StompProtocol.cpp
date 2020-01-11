@@ -57,27 +57,30 @@ void StompProtocol::handleReceipt(StompFrame receipt) {
 		activeUser->subscribe(topic, subId);
 	} else if (frameFromReceipt.getCommand() == "DISCONNECT") {
 		terminate = true;
+	} else if (frameFromReceipt.getCommand() == "UNSUBSCRIBE") {
+		int subId = std::stoi(frameFromReceipt.getHeader("id"));
+		activeUser->unsubscribe(subId);
 	}
-
 }
 
 void StompProtocol::handleSend(StompFrame frame) {
 	std::string command = frame.removeHeader("command");
-	std::string book = frame.removeHeader("book");
+	std::string bookName = frame.removeHeader("book");
 	std::string topic = frame.getHeader("destination");
 	std::string username = activeUser->getUsername();
+
 	if (command == "add") {
-		frame.setBody(username + "has added the book " + book);
-		activeUser->addBook(topic, book, username);
+		frame.setBody(username + "has added the boo " + bookName);
+		activeUser->addBook(topic, bookName, username);
 	} else if (command == "borrow") {
-		frame.setBody(username + "wish to borrow " + book);
-		activeUser->addToPendingBorrowBooks(topic, book);
+		frame.setBody(username + "wish to borrow " + bookName);
+		activeUser->addToPendingBorrowBooks(topic, bookName);
 	} else if (command == "return") {
-		std::string bookLender = activeUser->getBookLender(topic, book);
-		if(activeUser->returnBook(topic, book)) {
-			frame.setBody("Returning " + book + " to " + bookLender);
-		} else{
-			//TODO: add a print to screen if can't return book.
+		std::string bookLender = activeUser->getBookLender(topic, bookName);
+		if (activeUser->returnBook(topic, bookName)) {
+			frame.setBody("Returning " + bookName + " to " + bookLender);
+		} else {
+			printToScreen("can't return book: " + bookName);
 		}
 	} else if (command == "status") {
 		frame.setBody("book status");
@@ -89,6 +92,11 @@ void StompProtocol::handleUnsubscribe(StompFrame frame) {
 	std::string genre = frame.removeHeader("genre");
 	int subId = activeUser->getSubId(genre);
 	frame.addHeader("id", std::to_string(subId));
+
+	int receiptId = activeUser->getCurrentReceiptId();
+	frame.addHeader("receipt", std::to_string(receiptId));
+	activeUser->addFrameWithReceipt(receiptId, frame);
+
 	sendFrame(frame);
 }
 
@@ -104,9 +112,9 @@ void StompProtocol::handleMessage(StompFrame frame) {
 	} else if (frame.findInFrameBody("Returning")) {
 		handleReturning(frame);
 	} else if (frame.findInFrameBody("added")) {
-
+		printToScreen(frame.getBody());
 	} else if (frame.findInFrameBody("Taking")) {
-
+		handelTaking(frame);
 	} else if (frame.findInFrameBody("status")) {
 
 	}
@@ -129,9 +137,17 @@ void StompProtocol::handleReturning(StompFrame frame) {
 
 }
 
+void StompProtocol::printToScreen(const std::string &message) {
+	//TODO: implement this
+}
+
 
 void StompProtocol::sendFrame(StompFrame &frame) const {
 	connectionHandler->sendFrameAscii(frame.toString(), '\0');
+}
+
+void StompProtocol::handelTaking(StompFrame frame) {
+
 }
 
 

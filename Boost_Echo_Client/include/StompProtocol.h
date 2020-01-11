@@ -34,6 +34,12 @@ private:
 
 	void handleReturning(StompFrame frame);
 
+	void handleAdded(StompFrame frame);
+
+	void sendFrame(StompFrame &frame) const;
+
+	void printToScreen(const std::string &message);
+
 public:
 	explicit StompProtocol(ConnectionHandler *connectionHandler);
 
@@ -41,7 +47,7 @@ public:
 
 	bool shouldTerminate();
 
-	void sendFrame(StompFrame &frame) const;
+	void handelTaking(StompFrame frame);
 };
 
 

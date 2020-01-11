@@ -25,7 +25,7 @@ public:
 
 	const std::string &getCommand() const;
 
-	void setCommand(const std::string &command);
+	void setCommand(const std::string &newCommand);
 
 	const std::map<std::string, std::string> &getHeaders() const;
 
@@ -33,15 +33,15 @@ public:
 
 	const std::string &getBody() const;
 
-	void setBody(const std::string &body);
+	void setBody(const std::string &newBody);
 
 	std::string toString();
 
 	std::string removeHeader(const std::string& key);
 
-	bool findInFrameBody(const std::string subString);
+	bool findInFrameBody(const std::string& subString);
 
-	std::string getNextStringInBody(std::string strFrom);
+	std::string getNextStringInBody(const std::string& strFrom);
 };
 
 

@@ -14,7 +14,6 @@ std::string StompFrame::getHeader(const std::string& key) {
 }
 
 std::string StompFrame::removeHeader(const std::string& key){
-	//TODO: make sure this doesn't add a new key to the map every time this is called.
 	std::string value = headersMap[key];
 	headersMap.erase(key);
 	return value;
@@ -26,8 +25,8 @@ StompFrame StompFrame::createStompFrame(const std::string &message) {
 	stompFrame.command = lines[0];
 	int currentLine = 1;
 	while (!lines[currentLine].empty()) {
-		std::vector<std::string> splittedHeader = split(lines[currentLine], ':');
-		stompFrame.addHeader(splittedHeader[0], splittedHeader[1]);
+		std::vector<std::string> splitHeader = split(lines[currentLine], ':');
+		stompFrame.addHeader(splitHeader[0], splitHeader[1]);
 		currentLine++;
 	}
 	currentLine++;
@@ -70,8 +69,8 @@ const std::string &StompFrame::getCommand() const {
 	return command;
 }
 
-void StompFrame::setCommand(const std::string &command) {
-	StompFrame::command = command;
+void StompFrame::setCommand(const std::string &newCommand) {
+	StompFrame::command = newCommand;
 }
 
 const std::map<std::string, std::string> &StompFrame::getHeaders() const {
@@ -86,15 +85,16 @@ const std::string &StompFrame::getBody() const {
 	return body;
 }
 
-void StompFrame::setBody(const std::string &body) {
-	StompFrame::body = body;
+void StompFrame::setBody(const std::string &newBody) {
+	StompFrame::body = newBody;
 }
 
-bool StompFrame::findInFrameBody(const std::string subString) {
+bool StompFrame::findInFrameBody(const std::string& subString) {
 	size_t found = body.find(subString);
 	return found != std::string::npos;
 }
 
-std::string StompFrame::getNextStringInBody(std::string strFrom) {
-	return body.substr(body.find(strFrom +" "));
+std::string StompFrame::getNextStringInBody(const std::string& strFrom) {
+	std::string restOfSentence = body.substr(body.find(strFrom +" "));
+	return restOfSentence.substr(0, restOfSentence.find(' '));
 }
