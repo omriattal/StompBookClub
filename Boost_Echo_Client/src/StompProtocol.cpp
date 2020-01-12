@@ -62,15 +62,16 @@ void StompProtocol::handleReceipt(StompFrame receipt) {
 		int subId = std::stoi(frameFromReceipt.getHeader("id"));
 		std::string topic = frameFromReceipt.getHeader("destination");
 		activeUser->subscribe(topic, subId);
-
+		printToScreen("Joined club "+topic);
 	} else if (frameFromReceipt.getCommand() == "DISCONNECT") {
 		terminate = true;
 		activeUser->logout();
 
 	} else if (frameFromReceipt.getCommand() == "UNSUBSCRIBE") {
 		int subId = std::stoi(frameFromReceipt.getHeader("id"));
+		std::string topic = activeUser->getTopic(subId);
 		activeUser->unsubscribe(subId);
-
+		printToScreen("Exited club "+topic);
 	}
 }
 
@@ -131,7 +132,7 @@ void StompProtocol::handleMessage(StompFrame frame) {
 		handleTakingMessage(frame);
 	} else if (frame.findInFrameBody("has")) {
 		handleHasBookMessage(frame);
-	} else if (frame.findInFrameBody("status")) {
+	} else if (frame.findInFrameBody("status")){
 		handleStatusMessage(frame);
 	}
 	printToScreen(frame.getHeader("destination") + ":" + frame.getBody());
@@ -205,4 +206,8 @@ void StompProtocol::sendFrame(StompFrame &frame) const {
 
 StompProtocol::~StompProtocol() {
 	delete activeUser;
+}
+
+std::string StompProtocol::getBookInBorrowMessage(std::string body) {
+
 }

@@ -23,7 +23,15 @@ int main(int argc, char *argv[]) {
 			createConHandlerAndConnectToSocket(host, port);
 			std::thread handlerThread(readFromServer);
 			createProtocolAndSendConnectFrame(username, password, host);
-		}
+		} else if (action == "join") {
+			std::string topic;
+			msgStream>>topic;
+			createAndSendSubscribeFrame(topic);
+		} else if (action == "exit") {
+			std::string topic;
+			msgStream>>topic;
+			createAndSendUnSubscribeFrame(topic);
+		} else if()
 	}
 	deleteFields();
 }
@@ -103,5 +111,19 @@ void terminate(){
 
 void toLowerCase(std::string &action) {
 	std::transform(action.begin(), action.end(), action.begin(), [](unsigned char c) { return tolower(c); });
+}
+
+void createAndSendSubscribeFrame(std::string &topic) {
+	StompFrame subscribeFrame;
+	subscribeFrame.setCommand("SUBSCRIBE");
+	subscribeFrame.addHeader("destination",topic);
+	protocol->process(subscribeFrame);
+}
+
+void createAndSendUnSubscribeFrame(std::string &topic) {
+	StompFrame unSubscribeFrame;
+	unSubscribeFrame.setCommand("UNSUBSCRIBE");
+	unSubscribeFrame.addHeader("destination", topic);
+	protocol->process(unSubscribeFrame);
 }
 

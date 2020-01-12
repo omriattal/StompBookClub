@@ -34,6 +34,10 @@ void deleteFields();
 void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
                         StompFrame &frame);
 
+void createAndSendSubscribeFrame(std::string &topic);
+
+void createAndSendUnSubscribeFrame(std::string &topic);
+
 void createConHandlerAndConnectToSocket(const std::string &host, short port);
 
 void createProtocolAndSendConnectFrame(const std::string &username, const std::string &password,

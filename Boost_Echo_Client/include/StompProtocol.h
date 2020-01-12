@@ -43,12 +43,14 @@ private:
 
 	void handleTakingMessage(StompFrame frame);
 
+	std::string getBookInBorrowMessage(std::string body);
 
 	StompFrame createSendFrame(const std::string &topic, std::string frameBody) const;
 
 	void sendFrame(StompFrame &frame) const;
 
 	void printToScreen(const std::string &message);
+
 
 public:
 	explicit StompProtocol(ConnectionHandler &connectionHandler);
