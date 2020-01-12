@@ -9,12 +9,14 @@
 #include <ConnectionHandler.h>
 #include <StompFrame.h>
 #include <User.h>
+#include <mutex>
 
 class StompProtocol {
 private:
 	ConnectionHandler &connectionHandler;
 	bool terminate;
 	User *activeUser{};
+	std::mutex processMutex;
 
 	void handleConnect(StompFrame frame);
 
@@ -43,12 +45,13 @@ private:
 
 	void handleTakingMessage(StompFrame frame);
 
+	static std::string parseBookName(const std::string& frameBody);
 
-	StompFrame createSendFrame(const std::string &topic, std::string frameBody) const;
+	StompFrame createSendFrame(const std::string &topic, const std::string& frameBody) const;
 
 	void sendFrame(StompFrame &frame) const;
 
-	void printToScreen(const std::string &message);
+	static void printToScreen(const std::string &message);
 
 public:
 	explicit StompProtocol(ConnectionHandler &connectionHandler);

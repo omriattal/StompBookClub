@@ -1,31 +1,116 @@
 
 #include <string>
 #include "StompProtocol.h"
-#include <mutex>
 #include <thread>
 #include <queue>
 #include "StompClient.h"
 
 int main(int argc, char *argv[]) {
-	input = new std::queue<std::string>;
-	while (!shouldTerminate) {
-		std::thread keyboardThread(readFromKeyboard);
-		std::stringstream msgStream(getFirstMessage());
-		std::string action;
-		msgStream >> action;
-		toLowerCase(action);
-		if (action == "login") {
-			std::string hostPort, username, password;
-			msgStream >> hostPort >> username >> password;
-			std::string host;
-			short port;
-			parseHostPort(hostPort, host, port);
-			createConHandlerAndConnectToSocket(host, port);
-			std::thread handlerThread(readFromServer);
-			createProtocolAndSendConnectFrame(username, password, host);
+	while (!shouldQuitApplication) {
+		std::stringstream msgStream(readFromKeyboard());
+		std::string appAction;
+		msgStream >> appAction;
+		toLowerCase(appAction);
+		if (appAction == "login") {
+			handleLoginCase(msgStream);
+
+			std::thread connectionHandlerThread(readFromServer);
+			while (!shouldTerminateSession) {
+				std::string msg = readFromKeyboard();
+				std::stringstream sesMsgStream(msg);
+				std::string sesAction;
+				sesMsgStream >> sesAction;
+				toLowerCase(sesAction);
+				handleMessage(msg, sesMsgStream, sesAction);
+			}
+			connectionHandlerThread.join();
+		} else if (appAction == "quit") {
+			shouldQuitApplication = true;
+			std::cout << "Omri and Roee were your kings, quitting application" << std::endl;
+		} else {
+			std::cout << "You must login in order to use the application" << std::endl;
 		}
+		deleteFields();
 	}
-	deleteFields();
+	return 0;
+}
+
+std::string readFromKeyboard() {
+	const short bufsize = 1024;
+	char buf[bufsize];
+	std::cin.getline(buf, bufsize);
+	std::string keyboardInput(buf);
+	return keyboardInput;
+}
+
+void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &sesAction) {
+	if (sesAction == "login") {
+		std::cout << "Client is already logged in" << std::endl;
+	} else if (sesAction == "join") {
+		handleJoinCase(sesMsgStream);
+	} else if (sesAction == "exit") {
+		handleExitCase(sesMsgStream);
+	} else if (sesAction == "add" || sesAction == "return" || sesAction == "borrow" ||
+	           sesAction == "status") {
+		handleSendCases(sesMsgStream, sesAction);
+	} else if (sesAction == "logout") {
+		handleLogoutCase();
+	}
+}
+
+void handleLogoutCase() {
+	StompFrame logoutFrame;
+	logoutFrame.setCommand("DISCONNECT");
+	protocol->process(logoutFrame);
+	shouldTerminateSession = true;
+}
+
+void handleLoginCase(std::stringstream &msgStream) {
+	std::string hostPort, username, password;
+	msgStream >> hostPort >> username >> password;
+	std::string host;
+	short port;
+	parseHostPort(hostPort, host, port);
+	createConHandlerAndConnectToSocket(host, port);
+	createProtocolAndSendConnectFrame(username, password, host);
+	shouldTerminateSession = true;
+}
+
+void handleJoinCase(std::stringstream &sesMsgStream) {
+	std::string topic;
+	sesMsgStream >> topic;
+	createAndSendSubscribeFrame(topic);
+}
+
+void handleExitCase(std::stringstream &sesMsgStream) {
+	std::string topic;
+	sesMsgStream >> topic;
+	createAndSendUnSubscribeFrame(topic);
+}
+
+void handleSendCases(std::stringstream &sesMsgStream, const std::string &sesAction) {
+	std::string topic;
+	std::string bookName;
+	parseTopicAndBookName(sesMsgStream, topic, bookName);
+	createAndSendSendFrame(topic, sesAction, bookName);
+}
+
+void createAndSendSendFrame(const std::string &topic, const std::string &action, const std::string &bookName) {
+	StompFrame borrowFrame;
+	borrowFrame.setCommand("SEND");
+	borrowFrame.addHeader("destination", topic);
+	borrowFrame.addHeader("action", action);
+	borrowFrame.addHeader("book", bookName);
+	protocol->process(borrowFrame);
+}
+
+void parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, std::string &bookName) {
+	sesMsgStream >> topic;
+	std::string nextWord;
+	while (sesMsgStream >> nextWord) {
+		bookName += nextWord + " ";
+	}
+	bookName = bookName.substr(0, bookName.size());
 }
 
 void createProtocolAndSendConnectFrame(const std::string &username, const std::string &password, const std::string &host) {
@@ -43,37 +128,27 @@ void createConHandlerAndConnectToSocket(const std::string &host, short port) {
 	}
 }
 
-
-void insertMessage(const std::string &msg) {
-	std::lock_guard<std::mutex> lock(inputLock);
-	input->push(msg);
+void createAndSendSubscribeFrame(std::string &topic) {
+	StompFrame subscribeFrame;
+	subscribeFrame.setCommand("SUBSCRIBE");
+	subscribeFrame.addHeader("destination", topic);
+	protocol->process(subscribeFrame);
 }
 
-void readFromKeyboard() {
-	while (!shouldTerminate) {
-		const short bufsize = 1024;
-		char buf[bufsize];
-		std::cin.getline(buf, bufsize);
-		std::string keyboardInput(buf);
-		insertMessage(keyboardInput);
-	}
+void createAndSendUnSubscribeFrame(std::string &topic) {
+	StompFrame unSubscribeFrame;
+	unSubscribeFrame.setCommand("UNSUBSCRIBE");
+	unSubscribeFrame.addHeader("destination", topic);
+	protocol->process(unSubscribeFrame);
 }
 
 void readFromServer() {
-	while (!shouldTerminate) {
+	while (!protocol->shouldTerminate()) {
 		std::string frame;
 		connectionHandler->getFrameAscii(frame, '\0');
-		insertMessage(frame);
+		protocol->process(StompFrame::createStompFrame(frame));
 	}
 }
-
-std::string getFirstMessage() {
-	std::lock_guard<std::mutex> lock(inputLock);
-	std::string message = input->front();
-	input->pop();
-	return message;
-}
-
 
 void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
                         StompFrame &frame) {
@@ -97,8 +172,8 @@ void parseHostPort(const std::string &hostPort, std::string &host, short &port) 
 	port = (short) std::stoi(portString);
 }
 
-void terminate(){
-	shouldTerminate = true;
+void terminate() {
+	shouldTerminateSession = true;
 }
 
 void toLowerCase(std::string &action) {

@@ -8,13 +8,12 @@
 #include <string>
 
 enum BookStatus {
-	AVAILABLE,NOT_AVAILABLE
+	AVAILABLE, NOT_AVAILABLE
 };
 
 
 class Book {
 private:
-
 	BookStatus status;
 
 public:
@@ -22,10 +21,13 @@ public:
 	const std::string owner;
 
 	Book(std::string name, std::string owner);
+
 	Book();
 
 	bool isAvailable();
+
 	void lend();
+
 	void acquire();
 
 

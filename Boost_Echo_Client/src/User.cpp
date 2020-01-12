@@ -61,10 +61,6 @@ int User::getSubId(const std::string &genre) {
 	return topicToSubIdMap[genre];
 }
 
-std::string User::getTopic(int subId) {
-	return subIdToTopicMap[subId];
-}
-
 
 //books related methods
 void User::addBook(const std::string &topic, const std::string &bookName, const std::string &owner) {

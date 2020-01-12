@@ -52,8 +52,6 @@ public:
 	//subscribe and unsubscribe related methods
 	int getSubId(const std::string &genre);
 
-	std::string getTopic(int subId);
-
 	void subscribe(const std::string &topic, int subId);
 
 	void unsubscribe(int subId);

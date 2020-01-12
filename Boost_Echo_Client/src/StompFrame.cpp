@@ -6,7 +6,7 @@
 StompFrame::StompFrame() : command(""), headersMap(), body("") {}
 
 void StompFrame::addHeader(std::string key, std::string value) {
-	headersMap.insert(std::move(key), std::move(value));
+	headersMap.insert(std::make_pair(std::move(key), std::move(value)));
 }
 
 std::string StompFrame::getHeader(const std::string& key) {
