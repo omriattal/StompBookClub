@@ -73,14 +73,6 @@ void StompFrame::setCommand(const std::string &newCommand) {
 	StompFrame::command = newCommand;
 }
 
-const std::map<std::string, std::string> &StompFrame::getHeaders() const {
-	return headersMap;
-}
-
-void StompFrame::setHeaders(const std::map<std::string, std::string> &headers) {
-	StompFrame::headersMap = headers;
-}
-
 const std::string &StompFrame::getBody() const {
 	return body;
 }

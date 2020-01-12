@@ -27,10 +27,6 @@ public:
 
 	void setCommand(const std::string &newCommand);
 
-	const std::map<std::string, std::string> &getHeaders() const;
-
-	void setHeaders(const std::map<std::string, std::string> &headers);
-
 	const std::string &getBody() const;
 
 	void setBody(const std::string &newBody);
