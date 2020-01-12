@@ -24,25 +24,28 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 	@Override
 	public void process(StompFrame message) {
 		StompCommand stompCommand = message.getCommandType();
+		System.out.println("Received a " + stompCommand + " frame");
+		System.out.println(message);
 		switch (stompCommand) {
 			case CONNECT: {
 				handleConnect(message);
+				break;
 			}
-
 			case SEND: {
 				handleSend(message);
+				break;
 			}
-
 			case SUBSCRIBE: {
 				handleSubscribe(message);
+				break;
 			}
-
 			case DISCONNECT: {
 				handleDisconnect(message);
+				break;
 			}
-
 			case UNSUBSCRIBE: {
 				handleUnsubscribe(message);
+				break;
 			}
 		}
 	}
@@ -72,8 +75,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 	}
 
 	private void handleConnect(StompFrame receivedFrame) {
-		String username = receivedFrame.getHeader("username");
-		String password = receivedFrame.getHeader("password");
+		String username = receivedFrame.getHeader("login");
+		String password = receivedFrame.getHeader("passcode");
 		LoginStatus loginStatus = Database.getInstance().login(connectionId, username, password);
 		StompFrame answerFrame = createConnectAnsFrame(receivedFrame, loginStatus);
 		connections.send(connectionId, answerFrame);
