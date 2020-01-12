@@ -4,32 +4,27 @@
 
 #include <string>
 #include <map>
+#include <Parser.h>
 #include <vector>
-
+#include <string>
 class StompFrame {
 private:
 	std::string command;
-	std::map<std::string, std::string> headersMap;
+	std::map<std::string, std::string> headers;
 	std::string body;
-
-	static std::vector<std::string> split(const std::string &s, char delimiter);
 
 public:
 	StompFrame();
 
-	void addHeader(std::string key, std::string value);
+	void addHeader(const std::string &key, const std::string &value);
 
-	std::string getHeader(const std::string& key);
+	std::string getHeader(const std::string &key);
 
-	static StompFrame createStompFrame(const std::string &message);
+	static StompFrame createStompFrame(std::string message);
 
 	const std::string &getCommand() const;
 
 	void setCommand(const std::string &newCommand);
-
-	const std::map<std::string, std::string> &getHeaders() const;
-
-	void setHeaders(const std::map<std::string, std::string> &headers);
 
 	const std::string &getBody() const;
 
@@ -37,12 +32,11 @@ public:
 
 	std::string toString();
 
-	std::string removeHeader(const std::string& key);
+	std::string removeHeader(const std::string &key);
 
-	bool findInFrameBody(const std::string& subString);
+	bool findInFrameBody(const std::string &subString);
 
-	std::string getNextStringInBody(const std::string& strFrom);
+	std::string getNextStringInBody(const std::string &strFrom);
 };
-
 
 #endif //BOOST_ECHO_CLIENT_STOMPFRAME_H
