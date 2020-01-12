@@ -109,7 +109,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 			case ADDED_NEW_USER:
 			case LOGGED_IN_SUCCESSFULLY: {
 				ansHeadersMap.put("version", receivedFrame.getHeader("accept-version"));
-				return createFrame(StompCommand.CONNECTED, ansHeadersMap, "");
+				return createFrame(StompCommand.CONNECTED, ansHeadersMap, "Roee and Omri are your kings! connected to the server.");
 			}
 
 			case ALREADY_LOGGED_IN: {
