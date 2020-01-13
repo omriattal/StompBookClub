@@ -10,10 +10,10 @@
 #include "StompProtocol.h"
 #include "ConnectionHandler.h"
 //fields
-std::queue<std::string> *input;
 StompProtocol *protocol;
 ConnectionHandler *connectionHandler;
-bool shouldTerminateSession = true;
+std::thread connectionHandlerThread;
+bool loggedIn = false;
 bool shouldQuitApplication = false;
 
 //Methods
@@ -41,10 +41,6 @@ void createConHandlerAndConnectToSocket(const std::string &host, short port);
 void createProtocolAndSendConnectFrame(const std::string &username, const std::string &password,
 		const std::string &host);
 
-void createAndSendSubscribeFrame(std::string &topic);
-
-void createAndSendUnSubscribeFrame(std::string &topic);
-
 void parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, std::string &bookName);
 
 void createAndSendSendFrame(const std::string &topic, const std::string &action , const std::string &bookName);
@@ -59,6 +55,10 @@ void handleLoginCase(std::stringstream &msgStream);
 
 void handleLogoutCase();
 
-void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &sesAction);
+void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &action);
+
+void printFrameBodyToScreen(StompFrame &receivedFrame);
+
+void checkIfErrorFrameWasReceived();
 
 #endif //BOOST_ECHO_CLIENT_STOMPCLIENT_H

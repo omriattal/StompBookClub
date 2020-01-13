@@ -34,6 +34,7 @@ void StompProtocol::process(const StompFrame &frame) {
 	} else {
 		printToScreen("This action is not allowed until you are logged in.");
 	}
+	printToScreen("process finished for: " + command);
 }
 
 void StompProtocol::handleSubscribe(StompFrame frame) {
@@ -68,7 +69,6 @@ void StompProtocol::handleReceipt(StompFrame receipt) {
 	} else if (frameFromReceipt.getCommand() == "DISCONNECT") {
 		terminate = true;
 		activeUser->logout();
-
 	} else if (frameFromReceipt.getCommand() == "UNSUBSCRIBE") {
 		int subId = std::stoi(frameFromReceipt.getHeader("id"));
 		activeUser->unsubscribe(subId);
@@ -77,36 +77,36 @@ void StompProtocol::handleReceipt(StompFrame receipt) {
 }
 
 void StompProtocol::handleSend(StompFrame frame) {
-	std::string command = frame.removeHeader("action");
-	std::string bookName = frame.removeHeader("book");
+	std::string action = frame.removeHeader("action");
+	std::string bookName = frame.removeHeader("bookName");
 	std::string topic = frame.getHeader("destination");
 	std::string username = activeUser->getUsername();
 
-	if (command == "add") {
-		frame.setBody(username + "has added the book '" + bookName + "'");
+	if (action == "add") {
+		frame.setBody(username + " has added the book ~" + bookName + "~");
 		activeUser->addBook(topic, bookName, username);
-	} else if (command == "borrow") {
-		frame.setBody(username + "wish to borrow '" + bookName + "'");
+	} else if (action == "borrow") {
+		frame.setBody(username + " wish to borrow ~" + bookName + "~");
 		activeUser->addToPendingBorrowBooks(topic, bookName);
-	} else if (command == "return") {
+	} else if (action == "return") {
 		std::string bookLender = activeUser->getBookLender(topic, bookName);
 		if (activeUser->returnBook(topic, bookName)) {
-			frame.setBody("Returning '" + bookName + "' to " + bookLender);
+			frame.setBody("Returning ~" + bookName + "~ to " + bookLender);
 		} else {
-			printToScreen("can't return book: '" + bookName + "'");
+			printToScreen("Can't return book: ~" + bookName + "~");
 		}
-	} else if (command == "taking") {
+	} else if (action == "taking") {
 		std::string owner = frame.removeHeader("owner");
 		activeUser->addBook(topic, bookName, owner);
 		printToScreen("Borrowed book from " + owner);
-	} else if (command == "status") {
+	} else if (action == "status") {
 		frame.setBody("book status");
 	}
 	sendFrame(frame);
 }
 
 void StompProtocol::handleUnsubscribe(StompFrame frame) {
-	std::string genre = frame.removeHeader("genre");
+	std::string genre = frame.removeHeader("destination");
 	int subId = activeUser->getSubId(genre);
 	frame.addHeader("id", std::to_string(subId));
 
@@ -121,6 +121,7 @@ void StompProtocol::handleDisconnect(StompFrame frame) {
 	int receiptId = activeUser->getCurrentSubId();
 	frame.addHeader("receipt", std::to_string(receiptId));
 	activeUser->addFrameWithReceipt(receiptId, frame);
+	sendFrame(frame);
 }
 
 void StompProtocol::handleMessage(StompFrame frame) {
@@ -135,14 +136,13 @@ void StompProtocol::handleMessage(StompFrame frame) {
 	} else if (frame.findInFrameBody("status")) {
 		handleStatusMessage(frame);
 	}
-	printToScreen(frame.getHeader("destination") + ":" + frame.getBody());
 }
 
 void StompProtocol::handleBorrowMessage(StompFrame frame) {
 	std::string topic = frame.getHeader("destination");
 	std::string book = parseBookName(frame.getBody());
 	if (activeUser->hasBookInInventory(topic, book)) {
-		process(createSendFrame(topic, activeUser->getUsername() + "has " + book));
+		handleSend(createSendFrame(topic, activeUser->getUsername() + "has " + book));
 	}
 }
 
@@ -173,16 +173,16 @@ void StompProtocol::handleHasBookMessage(StompFrame frame) {
 	std::string username;
 	bodyStream >> username;
 	if (activeUser->removeFromPendingBorrowBooks(topic, book)) {
-		process(createSendFrame(topic, "Taking " + book + " from " + username));
+		handleSend(createSendFrame(topic, "Taking " + book + " from " + username));
 	}
 }
 
 void StompProtocol::handleStatusMessage(StompFrame frame) {
 	std::string topic = frame.getHeader("destination");
-	process(createSendFrame(topic, activeUser->topicToString(topic)));
+	handleSend(createSendFrame(topic, topic + ":" + activeUser->topicToString(topic)));
 }
 
-StompFrame StompProtocol::createSendFrame(const std::string &topic, const std::string& frameBody) const {
+StompFrame StompProtocol::createSendFrame(const std::string &topic, const std::string &frameBody) const {
 	StompFrame frameToSend;
 	frameToSend.setCommand("SEND");
 	frameToSend.addHeader("destination", topic);
@@ -204,9 +204,9 @@ void StompProtocol::sendFrame(StompFrame &frame) const {
 	connectionHandler.sendFrameAscii(frame.toString(), '\0');
 }
 
-std::string StompProtocol::parseBookName(const std::string& frameBody){
-	std::string bookName = frameBody.substr(frameBody.find("'") + 1);
-	bookName = bookName.substr(0, bookName.find("'"));
+std::string StompProtocol::parseBookName(const std::string &frameBody) {
+	std::string bookName = frameBody.substr(frameBody.find('~') + 1);
+	bookName = bookName.substr(0, bookName.find('~'));
 	return bookName;
 }
 
@@ -217,3 +217,4 @@ StompProtocol::~StompProtocol() {
 bool StompProtocol::shouldTerminate() {
 	return terminate;
 }
+

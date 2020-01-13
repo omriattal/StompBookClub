@@ -14,7 +14,9 @@ public class StompEncoderDecoder implements MessageEncoderDecoder<StompFrame> {
 		if (nextByte == '\u0000') {
 			pushByte(nextByte);
 			StompFrame receivedFrame = new StompFrame();
-			receivedFrame.init(popString());
+			String frame = popString();
+			System.out.println("decoded frame: \n" + frame);
+			receivedFrame.init(frame);
 			return receivedFrame;
 		}
 

@@ -83,7 +83,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 	}
 
 	private void handleDisconnect(StompFrame receivedFrame) {
-		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeader("receipt-id"));
+		StompFrame ansFrame = createReceiptFrame(receivedFrame.getHeader("receipt"));
 		connections.send(connectionId, ansFrame);
 
 		database.logout(connectionId);
@@ -104,24 +104,24 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 		HashMap<String, String> ansHeadersMap = new HashMap<>();
 		String username =receivedFrame.getHeader("login");
 		switch (loginStatus) {
-			case CLIENT_ALREADY_CONNECTED:{
-				ansHeadersMap.put("message","client already logged in to a user");
-				return createFrame(StompCommand.ERROR, ansHeadersMap, "Failed to login user: " + username + "\n Reason: client already logged in to a user");
-			}
-
 			case ADDED_NEW_USER:
 			case LOGGED_IN_SUCCESSFULLY: {
 				ansHeadersMap.put("version", receivedFrame.getHeader("accept-version"));
 				return createFrame(StompCommand.CONNECTED, ansHeadersMap, "Roee and Omri are your kings! connected to the server.");
 			}
-
+			case CLIENT_ALREADY_CONNECTED:{
+				ansHeadersMap.put("message","client already logged in to a user");
+				shouldTerminate = true;
+				return createFrame(StompCommand.ERROR, ansHeadersMap, "Failed to login user: " + username + "\n Reason: client already logged in to a user");
+			}
 			case ALREADY_LOGGED_IN: {
 				ansHeadersMap.put("message", "User already logged in");
+				shouldTerminate = true;
 				return createFrame(StompCommand.ERROR, ansHeadersMap, "Failed to login user: " + username + "\n Reason: user already logged in");
 			}
-
 			case WRONG_PASSWORD: {
 				ansHeadersMap.put("message", "Wrong password");
+				shouldTerminate = true;
 				return createFrame(StompCommand.ERROR, ansHeadersMap, "Failed to login user: " + username + "\n Reason: wrong password");
 			}
 		}

@@ -39,6 +39,8 @@ StompFrame User::getFrameFromReceipt(int receiptId) {
 void User::subscribe(const std::string &topic, int subId) {
 	subIdToTopicMap.insert(std::make_pair(subId, topic));
 	topicToSubIdMap.insert(std::make_pair(topic, subId));
+	inventory.insert(std::make_pair(topic, std::map<std::string, Book>()));
+	pendingBorrows.insert(std::make_pair(topic, std::vector<std::string>()));
 	incrementSubId();
 }
 
