@@ -52,7 +52,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 
 	private void handleSubscribe(StompFrame receivedFrame) {
 		String topic = receivedFrame.getHeader("destination");
-		Integer subId = new Integer(receivedFrame.getHeader("subscription"));
+		Integer subId = new Integer(receivedFrame.getHeader("id"));
 
 		connections.subscribe(topic, connectionId, subId);
 

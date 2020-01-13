@@ -21,8 +21,7 @@ public class StompFrame {
 	public void init(String message) {
 		String[] lines = message.split(System.getProperty("line.separator"));
 		int currentLine = 0;
-		commandType = StompCommand.valueOf(lines[currentLine].toUpperCase());
-		currentLine++;
+		commandType = StompCommand.valueOf(lines[currentLine++].toUpperCase());
 		currentLine = populateHeadersMap(lines, currentLine);
 		frameBody = createFrameBody(lines, currentLine);
 	}
@@ -31,8 +30,7 @@ public class StompFrame {
 	private String createFrameBody(String[] lines, int currentLine) {
 		StringBuilder frameBody = new StringBuilder("");
 		while (!lines[currentLine].equals("\u0000")) {
-			frameBody.append(lines[currentLine]).append("\n");
-			currentLine++;
+			frameBody.append(lines[currentLine++]).append("\n");
 		}
 		return frameBody.toString();
 	}

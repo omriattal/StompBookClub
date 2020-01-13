@@ -10,6 +10,7 @@ StompProtocol::StompProtocol(ConnectionHandler &connectionHandler) : connectionH
 void StompProtocol::process(const StompFrame &frame) {
 	std::lock_guard<std::mutex> lock(processMutex);
 	const std::string &command = frame.getCommand();
+	std::cout << "processing: " + command << std::endl;
 	if (command == "CONNECT") {
 		handleConnect(frame);
 	} else if (command == "CONNECTED") {
@@ -38,7 +39,7 @@ void StompProtocol::process(const StompFrame &frame) {
 void StompProtocol::handleSubscribe(StompFrame frame) {
 	//adding subscriptionId header
 	int subId = activeUser->getCurrentSubId();
-	frame.addHeader("subscription", std::to_string(subId));
+	frame.addHeader("id", std::to_string(subId));
 
 	//adding the receipt
 	int receiptId = activeUser->getCurrentReceiptId();
@@ -191,7 +192,6 @@ StompFrame StompProtocol::createSendFrame(const std::string &topic, const std::s
 
 void StompProtocol::handleError(StompFrame frame) {
 	printToScreen(frame.getHeader("message"));
-	printToScreen(frame.getBody());
 	terminate = true;
 }
 
@@ -200,6 +200,7 @@ void StompProtocol::printToScreen(const std::string &message) {
 }
 
 void StompProtocol::sendFrame(StompFrame &frame) const {
+	std::cout << "sending: " + frame.getCommand() << std::endl;
 	connectionHandler.sendFrameAscii(frame.toString(), '\0');
 }
 

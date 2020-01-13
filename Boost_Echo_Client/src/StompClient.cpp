@@ -16,7 +16,9 @@ int main(int argc, char *argv[]) {
 
 			std::thread connectionHandlerThread(readFromServer);
 			while (!shouldTerminateSession) {
+				std::cout << "start typing" << std::endl;
 				std::string msg = readFromKeyboard();
+				std::cout << msg << std::endl;
 				std::stringstream sesMsgStream(msg);
 				std::string sesAction;
 				sesMsgStream >> sesAction;
@@ -35,6 +37,16 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
+void readFromServer() {
+	while (!protocol->shouldTerminate()) {
+		std::string frame;
+		connectionHandler->getFrameAscii(frame, '\0');
+		StompFrame stompFrame;
+		std::cout << StompFrame::createStompFrame(frame).getBody() << std::endl;
+		protocol->process(StompFrame::createStompFrame(frame));
+	}
+}
+
 std::string readFromKeyboard() {
 	const short bufsize = 1024;
 	char buf[bufsize];
@@ -51,7 +63,7 @@ void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, cons
 	} else if (sesAction == "exit") {
 		handleExitCase(sesMsgStream);
 	} else if (sesAction == "add" || sesAction == "return" || sesAction == "borrow" ||
-	           sesAction == "status") {
+			   sesAction == "status") {
 		handleSendCases(sesMsgStream, sesAction);
 	} else if (sesAction == "logout") {
 		handleLogoutCase();
@@ -73,7 +85,7 @@ void handleLoginCase(std::stringstream &msgStream) {
 	parseHostPort(hostPort, host, port);
 	createConHandlerAndConnectToSocket(host, port);
 	createProtocolAndSendConnectFrame(username, password, host);
-	shouldTerminateSession = true;
+	shouldTerminateSession = false;
 }
 
 void handleJoinCase(std::stringstream &sesMsgStream) {
@@ -113,7 +125,8 @@ void parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, 
 	bookName = bookName.substr(0, bookName.size());
 }
 
-void createProtocolAndSendConnectFrame(const std::string &username, const std::string &password, const std::string &host) {
+void
+createProtocolAndSendConnectFrame(const std::string &username, const std::string &password, const std::string &host) {
 	protocol = new StompProtocol(*connectionHandler);
 	StompFrame frame;
 	createConnectFrame(username, password, host, frame);
@@ -142,19 +155,8 @@ void createAndSendUnSubscribeFrame(std::string &topic) {
 	protocol->process(unSubscribeFrame);
 }
 
-void readFromServer() {
-	while (!protocol->shouldTerminate()) {
-		std::string frame;
-		connectionHandler->getFrameAscii(frame, '\0');
-		StompFrame stompFrame;
-		std::cout<<StompFrame::createStompFrame(frame).getBody()<<std::endl;
-		protocol->process(StompFrame::createStompFrame(frame));
-
-	}
-}
-
 void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
-                        StompFrame &frame) {
+						StompFrame &frame) {
 	frame.setCommand("CONNECT");
 	frame.addHeader("login", username);
 	frame.addHeader("passcode", password);
