@@ -163,7 +163,6 @@ void StompProtocol::handleTakingMessage(StompFrame frame) {
 	if (usernameToTake == activeUser->getUsername()) {
 		activeUser->lendBook(topic, bookName);
 	}
-
 }
 
 void StompProtocol::handleHasBookMessage(StompFrame frame) {
