@@ -146,7 +146,10 @@ void readFromServer() {
 	while (!protocol->shouldTerminate()) {
 		std::string frame;
 		connectionHandler->getFrameAscii(frame, '\0');
+		StompFrame stompFrame;
+		std::cout<<StompFrame::createStompFrame(frame).getBody()<<std::endl;
 		protocol->process(StompFrame::createStompFrame(frame));
+
 	}
 }
 
@@ -168,7 +171,7 @@ void deleteFields() {
 void parseHostPort(const std::string &hostPort, std::string &host, short &port) {
 	size_t location = hostPort.find(':');
 	host = hostPort.substr(0, location);
-	std::string portString = hostPort.substr(location);
+	std::string portString = hostPort.substr(location + 1);
 	port = (short) std::stoi(portString);
 }
 
