@@ -9,12 +9,14 @@
 #include <ConnectionHandler.h>
 #include <StompFrame.h>
 #include <User.h>
+#include <mutex>
 
 class StompProtocol {
 private:
-	ConnectionHandler *connectionHandler;
+	ConnectionHandler &connectionHandler;
 	bool terminate;
-	User *activeUser;
+	User *activeUser{};
+	std::mutex processMutex;
 
 	void handleConnect(StompFrame frame);
 
@@ -28,26 +30,37 @@ private:
 
 	void handleDisconnect(StompFrame frame);
 
+	void handleError(StompFrame frame);
+
+	//message frame handling
 	void handleMessage(StompFrame frame);
 
-	void handleBorrow(StompFrame frame);
+	void handleBorrowMessage(StompFrame frame);
 
-	void handleReturning(StompFrame frame);
+	void handleReturningMessage(StompFrame frame);
 
-	void handleAdded(StompFrame frame);
+	void handleStatusMessage(StompFrame frame);
+
+	void handleHasBookMessage(StompFrame frame);
+
+	void handleTakingMessage(StompFrame frame);
+
+	static std::string parseBookName(const std::string& frameBody);
+
+	StompFrame createSendFrame(const std::string &topic, const std::string& frameBody) const;
 
 	void sendFrame(StompFrame &frame) const;
 
-	void printToScreen(const std::string &message);
+	static void printToScreen(const std::string &message);
 
 public:
-	explicit StompProtocol(ConnectionHandler *connectionHandler);
+	explicit StompProtocol(ConnectionHandler &connectionHandler);
 
-	void process(const StompFrame& frame);
+	~StompProtocol();
+
+	void process(const StompFrame &frame);
 
 	bool shouldTerminate();
-
-	void handelTaking(StompFrame frame);
 };
 
 

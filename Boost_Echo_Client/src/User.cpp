@@ -61,10 +61,6 @@ int User::getSubId(const std::string &genre) {
 	return topicToSubIdMap[genre];
 }
 
-std::string User::getTopic(int subId) {
-	return subIdToTopicMap[subId];
-}
-
 
 //books related methods
 void User::addBook(const std::string &topic, const std::string &bookName, const std::string &owner) {
@@ -124,6 +120,45 @@ bool User::bookExists(const std::string &topic, const std::string &book) {
 }
 
 bool User::topicExists(const std::string &topic) const { return this->inventory.find(topic) != this->inventory.end(); }
+
+bool User::removeFromPendingBorrowBooks(const std::string &topic, std::string book) {
+	if(pendingBorrows.find(topic)!=pendingBorrows.end()) {
+		std::vector<std::string> topicPendingBooks = pendingBorrows[topic];
+		auto pendingBooksIter = std::find(topicPendingBooks.begin(), topicPendingBooks.end(), book);
+		if(pendingBooksIter!=topicPendingBooks.end()) {
+			pendingBorrows.erase(book);
+			return true;
+		}
+	}
+	return false;
+}
+
+std::string User::topicToString(std::string topic) {
+	std::string toReturn;
+	if(topicExists(topic)) {
+		std::map<std::string,Book> topicBooks = inventory[topic];
+		for(const auto& topicBookIter : topicBooks) {
+			Book topicBook = topicBookIter.second;
+			if(topicBook.isAvailable()) {
+				toReturn += topicBook.name +",";
+			}
+		}
+	}
+	toReturn = toReturn.substr(0,toReturn.size()-1);
+	return toReturn;
+}
+
+void User::login() {
+	loggedIn = true;
+}
+
+void User::logout() {
+	loggedIn = false;
+}
+
+bool User::isLoggedIn(){
+	return loggedIn;
+}
 
 
 
