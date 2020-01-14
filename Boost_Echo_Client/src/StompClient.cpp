@@ -5,6 +5,8 @@
 #include <queue>
 #include "StompClient.h"
 
+//login 132.72.45.13:7777 kingjames king1234
+
 int main(int argc, char *argv[]) {
 	while (!shouldQuitApplication) {
 		//TODO: add to topic not subscribed to

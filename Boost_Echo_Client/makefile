@@ -25,7 +25,7 @@ bin/Book.o: src/Book.cpp
 	g++ $(CFLAGS) -o bin/Book.o src/Book.cpp
 
 bin/Parser.o: src/Parser.cpp
-    g++ $(CFLAGS) -o bin/Parser.o src/Parser.cpp
+	g++ $(CFLAGS) -o bin/Parser.o src/Parser.cpp
 
 .PHONY: clean
 clean:

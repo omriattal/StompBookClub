@@ -149,8 +149,9 @@ void StompProtocol::handleBorrowMessage(StompFrame frame) {
 void StompProtocol::handleReturningMessage(StompFrame frame) {
 	std::string topic = frame.getHeader("destination");
 	std::string usernameToReturn = frame.getNextStringInBody("to");
-	std::string bookName = frame.getNextStringInBody("Returning");
+	std::string bookName = parseBookName(frame.getBody());
 	if (usernameToReturn == activeUser->getUsername()) {
+
 		activeUser->acquireBook(topic, bookName);
 		printToScreen(bookName + " was returned to your inventory");
 	}
