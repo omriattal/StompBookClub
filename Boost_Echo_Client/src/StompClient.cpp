@@ -1,16 +1,13 @@
 
 #include <string>
 #include "StompProtocol.h"
-#include <thread>
-#include <queue>
 #include "StompClient.h"
 
-//login 132.72.45.13:7777 kingjames king1234
+//login 127.0.0.1:7777 kingjames king1234
 
-int main(int argc, char *argv[]) {
-	while (!shouldQuitApplication) {
+int main() {
+	while (true) {
 		//TODO: add to topic not subscribed to
-		std::cout << "what do you want to do?" << std::endl;
 		std::string msg = readFromKeyboard();
 		std::stringstream msgStream(msg);
 		std::string action;
@@ -23,18 +20,19 @@ int main(int argc, char *argv[]) {
 		} else if (loggedIn) {
 			handleMessage(msg, msgStream, action);
 		} else if (action == "quit") {
-			shouldQuitApplication = true;
 			std::cout << "Omri and Roee were your kings, quitting application" << std::endl;
+			if(connectionHandlerThread.joinable()) connectionHandlerThread.join();
+			break;
 		} else {
 			std::cout << "You must login in order to use the application" << std::endl;
 		}
 	}
-	return 0;
 }
 
 void checkIfErrorFrameWasReceived() {
-	if(protocol && protocol->shouldTerminate()){
+	if (shouldJoinConnectionHandlerThread && connectionHandlerThread.joinable()) {
 		connectionHandlerThread.join();
+		shouldJoinConnectionHandlerThread = false;
 	}
 }
 
@@ -44,8 +42,8 @@ void readFromServer() {
 		connectionHandler->getFrameAscii(frame, '\0');
 		StompFrame receivedFrame = StompFrame::createStompFrame(frame);
 		protocol->process(receivedFrame);
-		printFrameBodyToScreen(receivedFrame);
 	}
+	shouldJoinConnectionHandlerThread = true;
 	connectionHandler->close();
 	loggedIn = false;
 	deleteFields();
@@ -71,7 +69,7 @@ void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, cons
 		handleSendCases(sesMsgStream, action);
 	} else if (action == "logout") {
 		handleLogoutCase();
-	} else if (action == "quit"){
+	} else if (action == "quit") {
 		std::cout << "Please logout before quitting the application" << std::endl;
 	} else {
 		std::cout << action + " is not a valid command" << std::endl;
@@ -133,8 +131,8 @@ void parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, 
 	bookName = bookName.substr(0, bookName.size() - 1);
 }
 
-void
-createProtocolAndSendConnectFrame(const std::string &username, const std::string &password, const std::string &host) {
+void createProtocolAndSendConnectFrame(const std::string &username, const std::string &password,
+                                                    const std::string &host) {
 	protocol = new StompProtocol(*connectionHandler);
 	StompFrame frame;
 	createConnectFrame(username, password, host, frame);
@@ -145,7 +143,6 @@ void createConHandlerAndConnectToSocket(const std::string &host, short port) {
 	connectionHandler = new ConnectionHandler(host, port);
 	if (!connectionHandler->connect()) {
 		std::cerr << "Could not connect to server" << std::endl;
-		terminate();
 	}
 }
 
@@ -164,7 +161,7 @@ void createAndSendUnSubscribeFrame(std::string &topic) {
 }
 
 void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
-                        StompFrame &frame) {
+                                     StompFrame &frame) {
 	frame.setCommand("CONNECT");
 	frame.addHeader("login", username);
 	frame.addHeader("passcode", password);
@@ -186,14 +183,6 @@ void parseHostPort(const std::string &hostPort, std::string &host, short &port) 
 	port = (short) std::stoi(portString);
 }
 
-void terminate() {
-}
-
 void toLowerCase(std::string &action) {
 	std::transform(action.begin(), action.end(), action.begin(), [](unsigned char c) { return tolower(c); });
-}
-
-void printFrameBodyToScreen(StompFrame &receivedFrame) {
-	receivedFrame.cleanStompFrameBody();
-	std::cout << receivedFrame.getBody() << std::endl;
 }

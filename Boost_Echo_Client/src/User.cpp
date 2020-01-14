@@ -27,7 +27,7 @@ int User::getCurrentReceiptId() const {
 //TODO: make sure this actually saves the frames to the map.
 //TODO: consider making Eli a king.
 
-void User::addFrameWithReceipt(int receiptId, const StompFrame &stompFrame) {
+void User::addFrameWithReceipt(int &receiptId, const StompFrame &stompFrame) {
 	receiptIdMap.insert(std::make_pair(receiptId, stompFrame));
 	currentReceiptId++;
 }
@@ -83,8 +83,7 @@ bool User::returnBook(const std::string &topic, const std::string &bookName) {
 
 bool User::lendBook(const std::string &topic, const std::string &bookName) {
 	if (hasBookInInventory(topic, bookName)) {
-		Book book(inventory[topic][bookName]);
-		book.lend();
+		inventory[topic][bookName].lend();
 		return true;
 	}
 	return false;
@@ -108,7 +107,7 @@ bool User::hasBookInInventory(const std::string &topic, const std::string &bookN
 }
 
 std::string User::getBookLender(const std::string &topic, const std::string &book) {
-	if(bookExists(topic, book)){
+	if (bookExists(topic, book)) {
 		return inventory[topic][book].owner;
 	}
 	return "";
@@ -124,10 +123,10 @@ bool User::bookExists(const std::string &topic, const std::string &book) {
 bool User::topicExists(const std::string &topic) const { return this->inventory.find(topic) != this->inventory.end(); }
 
 bool User::removeFromPendingBorrowBooks(const std::string &topic, std::string book) {
-	if(pendingBorrows.find(topic)!=pendingBorrows.end()) {
+	if (pendingBorrows.find(topic) != pendingBorrows.end()) {
 		std::vector<std::string> topicPendingBooks = pendingBorrows[topic];
 		auto pendingBooksIter = std::find(topicPendingBooks.begin(), topicPendingBooks.end(), book);
-		if(pendingBooksIter!=topicPendingBooks.end()) {
+		if (pendingBooksIter != topicPendingBooks.end()) {
 			pendingBorrows.erase(book);
 			return true;
 		}
@@ -137,16 +136,16 @@ bool User::removeFromPendingBorrowBooks(const std::string &topic, std::string bo
 
 std::string User::topicToString(std::string topic) {
 	std::string toReturn;
-	if(topicExists(topic)) {
-		std::map<std::string,Book> topicBooks = inventory[topic];
-		for(const auto& topicBookIter : topicBooks) {
+	if (topicExists(topic)) {
+		std::map<std::string, Book> topicBooks = inventory[topic];
+		for (const auto &topicBookIter : topicBooks) {
 			Book topicBook = topicBookIter.second;
-			if(topicBook.isAvailable()) {
-				toReturn += topicBook.name +",";
+			if (topicBook.isAvailable()) {
+				toReturn += topicBook.name + ",";
 			}
 		}
 	}
-	toReturn = toReturn.substr(0,toReturn.size()-1);
+	toReturn = toReturn.substr(0, toReturn.size() - 1);
 	return toReturn;
 }
 
@@ -158,8 +157,17 @@ void User::logout() {
 	loggedIn = false;
 }
 
-bool User::isLoggedIn(){
+bool User::isLoggedIn() {
 	return loggedIn;
+}
+
+std::string User::getTopic(int subId) {
+	if (!subIdToTopicMap[subId].empty()) {
+		return subIdToTopicMap[subId];
+	} else {
+		subIdToTopicMap.erase(subId);
+		return "";
+	}
 }
 
 

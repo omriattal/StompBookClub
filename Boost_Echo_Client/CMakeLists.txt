@@ -16,4 +16,3 @@ add_executable(StompClient
         src/StompFrame.cpp
         include/StompFrame.h src/User.cpp include/User.h src/StompProtocol.cpp include/StompProtocol.h src/Book.cpp include/Book.h include/StompClient.h src/Parser.cpp include/Parser.h)
 target_link_libraries(StompClient ${Boost_LIBRARIES})
-target_link_libraries (StompClient ${CMAKE_THREAD_LIBS_INIT})

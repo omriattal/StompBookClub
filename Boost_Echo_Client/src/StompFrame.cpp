@@ -12,7 +12,7 @@ void StompFrame::addHeader(const std::string &key, const std::string &value) {
 	headers.insert(std::make_pair(key, value));
 }
 
-std::string StompFrame::getHeader(const std::string &key) {
+std::string StompFrame::getHeader(const std::string &key) const {
 	return headers.find(key)->second;
 }
 
@@ -71,11 +71,6 @@ void StompFrame::setBody(const std::string &newBody) {
 bool StompFrame::findInFrameBody(const std::string &subString) {
 	size_t found = body.find(subString);
 	return found != std::string::npos;
-}
-
-std::string StompFrame::getNextStringInBody(const std::string &strFrom) {
-	std::string restOfSentence = body.substr(body.find(strFrom + " "));
-	return restOfSentence.substr(0, restOfSentence.find(' '));
 }
 
 std::string StompFrame::removeHeader(const std::string &key) {

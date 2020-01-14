@@ -18,7 +18,7 @@ public:
 
 	void addHeader(const std::string &key, const std::string &value);
 
-	std::string getHeader(const std::string &key);
+	std::string getHeader(const std::string &key) const;
 
 	static StompFrame createStompFrame(std::string message);
 
@@ -35,8 +35,6 @@ public:
 	std::string removeHeader(const std::string &key);
 
 	bool findInFrameBody(const std::string &subString);
-
-	std::string getNextStringInBody(const std::string &strFrom);
 
 	void cleanStompFrameBody();
 };

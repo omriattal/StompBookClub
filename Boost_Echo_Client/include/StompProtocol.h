@@ -22,7 +22,7 @@ private:
 
 	void handleSubscribe(StompFrame frame);
 
-	void handleReceipt(StompFrame frame);
+	void handleReceipt(const StompFrame& frame);
 
 	void handleSend(StompFrame frame);
 
@@ -30,7 +30,7 @@ private:
 
 	void handleDisconnect(StompFrame frame);
 
-	void handleError(StompFrame frame);
+	void handleError(const StompFrame& frame);
 
 	//message frame handling
 	void handleMessage(StompFrame frame);
@@ -39,7 +39,7 @@ private:
 
 	void handleReturningMessage(StompFrame frame);
 
-	void handleStatusMessage(StompFrame frame);
+	void handleStatusMessage(const StompFrame& frame);
 
 	void handleHasBookMessage(StompFrame frame);
 
@@ -61,6 +61,8 @@ public:
 	void process(const StompFrame &frame);
 
 	bool shouldTerminate();
+
+	void printMessageFrame(const StompFrame &frame) const;
 };
 
 

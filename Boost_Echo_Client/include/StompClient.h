@@ -5,60 +5,54 @@
 #ifndef BOOST_ECHO_CLIENT_STOMPCLIENT_H
 #define BOOST_ECHO_CLIENT_STOMPCLIENT_H
 
-#include <queue>
-#include <condition_variable>
+#include <thread>
 #include "StompProtocol.h"
 #include "ConnectionHandler.h"
-//fields
-StompProtocol *protocol;
-ConnectionHandler *connectionHandler;
-std::thread connectionHandlerThread;
-bool loggedIn = false;
-bool shouldQuitApplication = false;
 
-//Methods
-void terminate();
+	StompProtocol *protocol;
+	ConnectionHandler *connectionHandler;
+	std::thread connectionHandlerThread;
+	bool loggedIn = false;
+	bool shouldJoinConnectionHandlerThread = false;
 
-std::string readFromKeyboard();
+	static std::string readFromKeyboard();
 
-void readFromServer();
+	static void readFromServer();
 
-void toLowerCase(std::string &action);
+	void toLowerCase(std::string &action);
 
-void parseHostPort(const std::string &hostPort, std::string &host, short &port);
+	static void parseHostPort(const std::string &hostPort, std::string &host, short &port);
 
-void deleteFields();
+	void deleteFields();
 
-void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
-                        StompFrame &frame);
+	void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
+	                        StompFrame &frame);
 
-void createAndSendSubscribeFrame(std::string &topic);
+	void createAndSendSubscribeFrame(std::string &topic);
 
-void createAndSendUnSubscribeFrame(std::string &topic);
+	void createAndSendUnSubscribeFrame(std::string &topic);
 
-void createConHandlerAndConnectToSocket(const std::string &host, short port);
+	void createConHandlerAndConnectToSocket(const std::string &host, short port);
 
-void createProtocolAndSendConnectFrame(const std::string &username, const std::string &password,
-		const std::string &host);
+	void createProtocolAndSendConnectFrame(const std::string &username, const std::string &password,
+	                                       const std::string &host);
 
-void parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, std::string &bookName);
+	static void parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, std::string &bookName);
 
-void createAndSendSendFrame(const std::string &topic, const std::string &action , const std::string &bookName);
+	void createAndSendSendFrame(const std::string &topic, const std::string &action, const std::string &bookName);
 
-void handleSendCases(std::stringstream &sesMsgStream, const std::string &sesAction);
+	void handleSendCases(std::stringstream &sesMsgStream, const std::string &sesAction);
 
-void handleExitCase(std::stringstream &sesMsgStream);
+	void handleExitCase(std::stringstream &sesMsgStream);
 
-void handleJoinCase(std::stringstream &sesMsgStream);
+	void handleJoinCase(std::stringstream &sesMsgStream);
 
-void handleLoginCase(std::stringstream &msgStream);
+	void handleLoginCase(std::stringstream &msgStream);
 
-void handleLogoutCase();
+	void handleLogoutCase();
 
-void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &action);
+	void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &action);
 
-void printFrameBodyToScreen(StompFrame &receivedFrame);
-
-void checkIfErrorFrameWasReceived();
+	void checkIfErrorFrameWasReceived();
 
 #endif //BOOST_ECHO_CLIENT_STOMPCLIENT_H
