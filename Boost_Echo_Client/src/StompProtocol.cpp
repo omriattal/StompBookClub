@@ -131,7 +131,7 @@ void StompProtocol::handleMessage(StompFrame frame) {
 		handleReturningMessage(frame);
 	} else if (frame.findInFrameBody("Taking")) {
 		handleTakingMessage(frame);
-	} else if (frame.findInFrameBody("has")) {
+	} else if (frame.findInFrameBody("has") && !frame.findInFrameBody("added")) {
 		handleHasBookMessage(frame);
 	} else if (frame.findInFrameBody("status")) {
 		handleStatusMessage(frame);
@@ -142,7 +142,7 @@ void StompProtocol::handleBorrowMessage(StompFrame frame) {
 	std::string topic = frame.getHeader("destination");
 	std::string book = parseBookName(frame.getBody());
 	if (activeUser->hasBookInInventory(topic, book)) {
-		handleSend(createSendFrame(topic, activeUser->getUsername() + "has " + book));
+		handleSend(createSendFrame(topic, activeUser->getUsername() + " has " + book));
 	}
 }
 
