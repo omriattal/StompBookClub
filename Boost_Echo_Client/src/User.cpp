@@ -27,7 +27,7 @@ int User::getCurrentReceiptId() const {
 //TODO: make sure this actually saves the frames to the map.
 //TODO: consider making Eli a king.
 
-void User::addFrameWithReceipt(int &receiptId, const StompFrame &stompFrame) {
+void User::addFrameWithReceipt(int receiptId, const StompFrame &stompFrame) {
 	receiptIdMap.insert(std::make_pair(receiptId, stompFrame));
 	currentReceiptId++;
 }

@@ -36,7 +36,6 @@ public:
 
 	bool findInFrameBody(const std::string &subString);
 
-	void cleanStompFrameBody();
 };
 
 #endif //BOOST_ECHO_CLIENT_STOMPFRAME_H

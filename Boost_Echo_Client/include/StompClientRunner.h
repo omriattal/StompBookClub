@@ -2,28 +2,45 @@
 // Created by omriatt@wincs.cs.bgu.ac.il on 11/01/2020.
 //
 
-#ifndef BOOST_ECHO_CLIENT_STOMPCLIENT_H
-#define BOOST_ECHO_CLIENT_STOMPCLIENT_H
+#ifndef BOOST_ECHO_CLIENT_STOMPCLIENTRUNNER_H
+#define BOOST_ECHO_CLIENT_STOMPCLIENTRUNNER_H
 
 #include <thread>
 #include "StompProtocol.h"
 #include "ConnectionHandler.h"
 
+class StompClientRunner {
+private:
 	StompProtocol *protocol;
 	ConnectionHandler *connectionHandler;
 	std::thread connectionHandlerThread;
-	bool loggedIn = false;
-	bool shouldJoinConnectionHandlerThread = false;
+	bool loggedIn;
+	bool shouldJoinCHThread;
 
 	static std::string readFromKeyboard();
 
-	static void readFromServer();
+	static void readFromServer(StompClientRunner *runner);
+
+public:
+	StompClientRunner();
+
+	void run();
+
+	void setLoggedIn(bool newLoggedIn);
+
+	void setShouldJoinCHThread(bool newShouldJoinCHThread);
+
+	StompProtocol *getProtocol() const;
+
+	ConnectionHandler *getConnectionHandler() const;
+
+private:
+
+	void deleteFields();
 
 	void toLowerCase(std::string &action);
 
 	static void parseHostPort(const std::string &hostPort, std::string &host, short &port);
-
-	void deleteFields();
 
 	void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
 	                        StompFrame &frame);
@@ -54,5 +71,6 @@
 	void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &action);
 
 	void checkIfErrorFrameWasReceived();
+};
 
-#endif //BOOST_ECHO_CLIENT_STOMPCLIENT_H
+#endif //BOOST_ECHO_CLIENT_STOMPCLIENTRUNNER_H

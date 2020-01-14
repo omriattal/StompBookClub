@@ -22,7 +22,7 @@ private:
 
 	void handleSubscribe(StompFrame frame);
 
-	void handleReceipt(const StompFrame& frame);
+	void handleReceipt(const StompFrame &frame);
 
 	void handleSend(StompFrame frame);
 
@@ -30,24 +30,22 @@ private:
 
 	void handleDisconnect(StompFrame frame);
 
-	void handleError(const StompFrame& frame);
+	void handleError(const StompFrame &frame);
 
 	//message frame handling
-	void handleMessage(StompFrame frame);
+	void handleMessage(const StompFrame &frame);
 
-	void handleBorrowMessage(StompFrame frame);
+	void handleBorrowMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody);
 
-	void handleReturningMessage(StompFrame frame);
+	void handleReturningMessage(const StompFrame &frame, std::vector<std::string> parsedBody);
 
-	void handleStatusMessage(const StompFrame& frame);
+	void handleStatusMessage(const StompFrame &frame);
 
-	void handleHasBookMessage(StompFrame frame);
+	void handleHasMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody);
 
-	void handleTakingMessage(StompFrame frame);
+	void handleTakingMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody);
 
-	static std::string parseBookName(const std::string& frameBody);
-
-	StompFrame createSendFrame(const std::string &topic, const std::string& frameBody) const;
+	StompFrame createSendFrame(const std::string &topic, const std::string &frameBody) const;
 
 	void sendFrame(StompFrame &frame) const;
 
@@ -63,6 +61,8 @@ public:
 	bool shouldTerminate();
 
 	void printMessageFrame(const StompFrame &frame) const;
+
+	std::string getBookName(const std::vector<std::string> &parsedBody, size_t from, size_t until) const;
 };
 
 

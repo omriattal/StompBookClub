@@ -12,7 +12,7 @@ include_directories(include)
 add_executable(StompClient
         include/ConnectionHandler.h
         src/ConnectionHandler.cpp
-        src/StompClient.cpp
+        src/StompClientRunner.cpp
         src/StompFrame.cpp
-        include/StompFrame.h src/User.cpp include/User.h src/StompProtocol.cpp include/StompProtocol.h src/Book.cpp include/Book.h include/StompClient.h src/Parser.cpp include/Parser.h)
+        include/StompFrame.h src/User.cpp include/User.h src/StompProtocol.cpp include/StompProtocol.h src/Book.cpp include/Book.h include/StompClientRunner.h src/Parser.cpp include/Parser.h src/StompClient.cpp)
 target_link_libraries(StompClient ${Boost_LIBRARIES})

@@ -44,7 +44,7 @@ public:
 	void logout();
 
 	//receipt related methods
-	void addFrameWithReceipt(int &receiptId, const StompFrame &stompFrame);
+	void addFrameWithReceipt(int receiptId, const StompFrame &stompFrame);
 
 	StompFrame getFrameFromReceipt(int receiptId);
 

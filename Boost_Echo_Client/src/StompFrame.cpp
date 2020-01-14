@@ -1,5 +1,5 @@
 //
-// Created by omriatt@wincs.cs.bgu.ac.il on 07/01/2020.
+// Created by omriatt@wincs.cs.bgu.ac.il  the king on 07/01/2020.
 //
 
 #include <cstring>
@@ -77,9 +77,4 @@ std::string StompFrame::removeHeader(const std::string &key) {
 	std::string value = headers[key];
 	headers.erase(key);
 	return value;
-}
-
-void StompFrame::cleanStompFrameBody() {
-	char chars[] = "~";
-	body.erase(std::remove(body.begin(), body.end(), chars[0]), body.end());
 }
