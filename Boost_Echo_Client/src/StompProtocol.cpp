@@ -140,9 +140,9 @@ void StompProtocol::handleMessage(StompFrame frame) {
 
 void StompProtocol::handleBorrowMessage(StompFrame frame) {
 	std::string topic = frame.getHeader("destination");
-	std::string book = parseBookName(frame.getBody());
-	if (activeUser->hasBookInInventory(topic, book)) {
-		handleSend(createSendFrame(topic, activeUser->getUsername() + " has " + book));
+	std::string bookName = parseBookName(frame.getBody());
+	if (activeUser->hasBookInInventory(topic, bookName)) {
+		handleSend(createSendFrame(topic, activeUser->getUsername() + " has ~" + bookName + "~"));
 	}
 }
 
@@ -168,13 +168,13 @@ void StompProtocol::handleTakingMessage(StompFrame frame) {
 }
 
 void StompProtocol::handleHasBookMessage(StompFrame frame) {
-	std::string book = parseBookName(frame.getBody());
+	std::string bookName = parseBookName(frame.getBody());
 	std::string topic = frame.getHeader("destination");
 	std::stringstream bodyStream(frame.getBody());
 	std::string username;
 	bodyStream >> username;
-	if (activeUser->removeFromPendingBorrowBooks(topic, book)) {
-		handleSend(createSendFrame(topic, "Taking " + book + " from " + username));
+	if (activeUser->removeFromPendingBorrowBooks(topic, bookName)) {
+		handleSend(createSendFrame(topic, "Taking ~" + bookName + "~ from " + username));
 	}
 }
 
