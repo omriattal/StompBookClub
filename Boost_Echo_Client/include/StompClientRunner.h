@@ -12,7 +12,7 @@
 class StompClientRunner {
 private:
 	StompProtocol *protocol;
-	ConnectionHandler *connectionHandler;
+	ConnectionHandler *connectionHandler{};
 	std::thread connectionHandlerThread;
 	bool loggedIn;
 	bool shouldTryJoinCHThread;
@@ -25,7 +25,9 @@ private:
 public:
 	StompClientRunner();
 
+	StompClientRunner(const StompClientRunner &other);
 
+	StompClientRunner &operator=(const StompClientRunner &other);
 
 	void run();
 

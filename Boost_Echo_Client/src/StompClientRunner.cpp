@@ -7,6 +7,21 @@
 StompClientRunner::StompClientRunner() : protocol(), connectionHandler(), connectionHandlerThread(),
                                          loggedIn(false), shouldTryJoinCHThread(false), connected(false) {}
 
+StompClientRunner::StompClientRunner(const StompClientRunner &other) : protocol(other.protocol),
+                                                                       loggedIn(other.loggedIn),
+                                                                       shouldTryJoinCHThread(other.shouldTryJoinCHThread),
+                                                                       connected(other.connected) {
+
+}
+StompClientRunner & StompClientRunner::operator=(const StompClientRunner &other) {
+	if(this != &other) {
+		protocol = other.protocol;
+		loggedIn = other.loggedIn;
+		shouldTryJoinCHThread = other.shouldTryJoinCHThread;
+		connected = other.connected;
+	}
+}
+
 void StompClientRunner::run() {
 	while (true) {
 		std::string msg = readFromKeyboard();

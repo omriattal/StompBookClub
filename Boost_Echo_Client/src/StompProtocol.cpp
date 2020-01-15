@@ -4,7 +4,24 @@
 
 #include "StompProtocol.h"
 
-StompProtocol::StompProtocol(ConnectionHandler &connectionHandler) : connectionHandler(connectionHandler), terminate() {
+StompProtocol::StompProtocol(ConnectionHandler &connectionHandler) : connectionHandler(connectionHandler), terminate(),
+                                                                     activeUser(), processMutex() {
+}
+
+StompProtocol::StompProtocol(const StompProtocol &other) : connectionHandler(other.connectionHandler),
+                                                           terminate(other.terminate),
+                                                           activeUser(new User(*other.activeUser)),
+                                                           processMutex() {
+
+
+}
+
+StompProtocol &StompProtocol::operator=(const StompProtocol &other) {
+	if(this != &other) {
+		terminate = other.terminate;
+		activeUser = new User(*other.activeUser);
+	}
+	return *this;
 }
 
 void StompProtocol::process(const StompFrame &frame) {

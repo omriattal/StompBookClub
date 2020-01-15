@@ -20,7 +20,7 @@ StompFrame StompFrame::createStompFrame(std::string message) {
 	std::vector<std::string> lines = Parser::split(std::move(message), '\n');
 	StompFrame stompFrame;
 	stompFrame.command = lines[0];
-	int currentLine = 1;
+	size_t currentLine = 1;
 
 	while (!lines[currentLine].empty()) {
 		std::vector<std::string> splittedHeader = Parser::split(lines[currentLine], ':');

@@ -7,10 +7,9 @@
 #include <utility>
 
 
-Book::Book(std::string name, std::string owner) : name(std::move(name)), owner(std::move(owner)),
-													status(AVAILABLE){}
+Book::Book(std::string name, std::string owner) : status(AVAILABLE), name(std::move(name)), owner(std::move(owner)){}
 
-Book::Book() : name(), owner(), status(AVAILABLE) {}
+Book::Book() : status(AVAILABLE), name(), owner() {}
 
 bool Book::isAvailable() {
 	return status == AVAILABLE;

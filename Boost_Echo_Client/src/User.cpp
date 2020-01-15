@@ -7,12 +7,9 @@
 #include <utility>
 
 User::User(std::string &username, std::string &password) :
-		username{username},
-		password{password},
-		currentSubId(1),
-		currentReceiptId(1),
-		pendingBorrows(),
-		receiptIdMap() {}
+		username{username}, password{password}, loggedIn(false),
+		currentSubId(1), currentReceiptId(1),
+		inventory(), pendingBorrows(), receiptIdMap(), subIdToTopicMap(), topicToSubIdMap() {}
 
 std::string User::getUsername() { return username; }
 

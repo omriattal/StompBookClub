@@ -16,7 +16,7 @@ class StompProtocol {
 private:
 	ConnectionHandler &connectionHandler;
 	bool terminate;
-	User *activeUser{};
+	User *activeUser;
 	std::mutex processMutex;
 
 	void handleConnect(StompFrame frame);
@@ -54,6 +54,10 @@ private:
 
 public:
 	explicit StompProtocol(ConnectionHandler &connectionHandler);
+
+	StompProtocol(const StompProtocol &other);
+
+	StompProtocol &operator=(const StompProtocol &other);
 
 	~StompProtocol();
 
