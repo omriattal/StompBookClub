@@ -24,8 +24,6 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 	@Override
 	public void process(StompFrame message) {
 		StompCommand stompCommand = message.getCommandType();
-		System.out.println("Received a " + stompCommand + " frame");
-		System.out.println(message);
 		switch (stompCommand) {
 			case CONNECT: {
 				handleConnect(message);
