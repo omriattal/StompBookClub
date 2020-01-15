@@ -3,13 +3,12 @@
 #include "StompProtocol.h"
 #include "StompClientRunner.h"
 
-//login 127.0.0.1:7777 kingjames king1234
+//login 127.0.0.1:7777 q s
 StompClientRunner::StompClientRunner() : protocol(), connectionHandler(), connectionHandlerThread(),
-                                         loggedIn(false), shouldJoinCHThread(false){}
+                                         loggedIn(false), shouldTryJoinCHThread(false){}
 
 void StompClientRunner::run() {
 	while (true) {
-		//TODO: add to topic not subscribed to
 		std::string msg = readFromKeyboard();
 		std::stringstream msgStream(msg);
 		std::string action;
@@ -32,10 +31,10 @@ void StompClientRunner::run() {
 }
 
 void StompClientRunner::checkIfErrorFrameWasReceived() {
-	if (shouldJoinCHThread && connectionHandlerThread.joinable()) {
+	if (shouldTryJoinCHThread && connectionHandlerThread.joinable()) {
 		connectionHandlerThread.join();
-		shouldJoinCHThread = false;
 	}
+	shouldTryJoinCHThread = false;
 }
 
 void StompClientRunner::readFromServer(StompClientRunner *runner) {
@@ -202,5 +201,5 @@ void StompClientRunner::setLoggedIn(bool newLoggedIn) {
 }
 
 void StompClientRunner::setShouldJoinCHThread(bool newShouldJoinCHThread) {
-	StompClientRunner::shouldJoinCHThread = newShouldJoinCHThread;
+	StompClientRunner::shouldTryJoinCHThread = newShouldJoinCHThread;
 }

@@ -78,9 +78,9 @@ public:
 
 	void addToPendingBorrowBooks(const std::string& topic, std::string book);
 
-	bool removeFromPendingBorrowBooks(const std::string& topic, std::string book);
+	bool removeFromPendingBorrowBooks(const std::string& topic, const std::string& bookName);
 
-	std::string topicToString(std::string topic);
+	std::string topicToString(const std::string& topic);
 
 	bool isLoggedIn();
 

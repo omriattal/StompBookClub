@@ -15,7 +15,7 @@ private:
 	ConnectionHandler *connectionHandler;
 	std::thread connectionHandlerThread;
 	bool loggedIn;
-	bool shouldJoinCHThread;
+	bool shouldTryJoinCHThread;
 
 	static std::string readFromKeyboard();
 

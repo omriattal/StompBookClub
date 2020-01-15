@@ -122,19 +122,18 @@ bool User::bookExists(const std::string &topic, const std::string &book) {
 
 bool User::topicExists(const std::string &topic) const { return this->inventory.find(topic) != this->inventory.end(); }
 
-bool User::removeFromPendingBorrowBooks(const std::string &topic, std::string book) {
+bool User::removeFromPendingBorrowBooks(const std::string &topic, const std::string& bookName) {
 	if (pendingBorrows.find(topic) != pendingBorrows.end()) {
 		std::vector<std::string> topicPendingBooks = pendingBorrows[topic];
-		auto pendingBooksIter = std::find(topicPendingBooks.begin(), topicPendingBooks.end(), book);
+		auto pendingBooksIter = std::find(topicPendingBooks.begin(), topicPendingBooks.end(), bookName);
 		if (pendingBooksIter != topicPendingBooks.end()) {
-			pendingBorrows.erase(book);
-			return true;
+			return std::remove(topicPendingBooks.begin(), topicPendingBooks.end(), bookName) != pendingBorrows[topic].end();
 		}
 	}
 	return false;
 }
 
-std::string User::topicToString(std::string topic) {
+std::string User::topicToString(const std::string& topic) {
 	std::string toReturn;
 	if (topicExists(topic)) {
 		std::map<std::string, Book> topicBooks = inventory[topic];

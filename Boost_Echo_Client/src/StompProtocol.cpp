@@ -148,7 +148,7 @@ void StompProtocol::handleBorrowMessage(const StompFrame &frame, const std::vect
 void StompProtocol::handleReturningMessage(const StompFrame &frame, std::vector<std::string> parsedBody) {
 	std::string topic = frame.getHeader("destination");
 	std::string usernameToReturn = parsedBody.at(parsedBody.size() - 1);
-	std::string bookName = getBookName(parsedBody, 1, parsedBody.size() - 1);
+	std::string bookName = getBookName(parsedBody, 1, parsedBody.size() - 2);
 	if (usernameToReturn == activeUser->getUsername()) {
 		activeUser->acquireBook(topic, bookName);
 		printToScreen(bookName + " was returned to your inventory");
@@ -158,9 +158,10 @@ void StompProtocol::handleReturningMessage(const StompFrame &frame, std::vector<
 void StompProtocol::handleTakingMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody) {
 	std::string usernameToTake = parsedBody.at(parsedBody.size() - 1);
 	std::string topic = frame.getHeader("destination");
-	std::string bookName = getBookName(parsedBody, 1, parsedBody.size() - 1);
+	std::string bookName = getBookName(parsedBody, 1, parsedBody.size() - 2);
 	if (usernameToTake == activeUser->getUsername()) {
 		activeUser->lendBook(topic, bookName);
+
 	}
 }
 
