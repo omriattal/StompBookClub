@@ -124,11 +124,17 @@ bool User::topicExists(const std::string &topic) const { return this->inventory.
 
 bool User::removeFromPendingBorrowBooks(const std::string &topic, const std::string& bookName) {
 	if (pendingBorrows.find(topic) != pendingBorrows.end()) {
-		std::vector<std::string> topicPendingBooks = pendingBorrows[topic];
-		auto pendingBooksIter = std::find(topicPendingBooks.begin(), topicPendingBooks.end(), bookName);
-		if (pendingBooksIter != topicPendingBooks.end()) {
-			return std::remove(topicPendingBooks.begin(), topicPendingBooks.end(), bookName) != pendingBorrows[topic].end();
-		}
+		std::vector<std::string> &topicPendingBooks = pendingBorrows[topic];
+		topicPendingBooks.erase(std::remove(topicPendingBooks.begin(),topicPendingBooks.end(),bookName),topicPendingBooks.end());
+	}
+	return false;
+
+}
+bool User::findInPendingBorrowBooks(const std::string &topic, const std::string& bookName) {
+	if (pendingBorrows.find(topic) != pendingBorrows.end()) {
+		std::vector<std::string> topicPendingBooks = pendingBorrows.at(topic);
+		auto pendingIter = std::find(topicPendingBooks.begin(), topicPendingBooks.end(), bookName);
+		return pendingIter!=topicPendingBooks.end();
 	}
 	return false;
 }

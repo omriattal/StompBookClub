@@ -171,7 +171,8 @@ void StompProtocol::handleHasMessage(const StompFrame &frame, const std::vector<
 	std::stringstream bodyStream(frame.getBody());
 	std::string username;
 	bodyStream >> username;
-	if (activeUser->removeFromPendingBorrowBooks(topic, bookName)) {
+	if (activeUser->findInPendingBorrowBooks(topic, bookName)) {
+		activeUser->removeFromPendingBorrowBooks(topic,bookName);
 		std::vector<std::string> bodyParser = Parser::split(frame.getBody(), ' ');
 		std::string owner = bodyParser.at(0);
 		activeUser->addBook(topic, bookName, owner);

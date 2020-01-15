@@ -85,6 +85,8 @@ public:
 	bool isLoggedIn();
 
 	std::string getTopic(int subId);
+
+	bool findInPendingBorrowBooks(const std::string &topic, const std::string &bookName);
 };
 
 
