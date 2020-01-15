@@ -15,7 +15,6 @@ public class StompEncoderDecoder implements MessageEncoderDecoder<StompFrame> {
 			pushByte(nextByte);
 			StompFrame receivedFrame = new StompFrame();
 			String frame = popString();
-			System.out.println("decoded frame: \n" + frame);
 			receivedFrame.init(frame);
 			return receivedFrame;
 		}
