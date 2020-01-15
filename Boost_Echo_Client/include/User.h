@@ -76,9 +76,9 @@ public:
 
 	std::string getBookLender(const std::string& topic, const std::string& book);
 
-	void addToPendingBorrowBooks(const std::string& topic, std::string book);
+	void addToPendingBorrowBooks(const std::string& topic, const std::string& book);
 
-	bool removeFromPendingBorrowBooks(const std::string& topic, const std::string& bookName);
+	void removeFromPendingBorrowBooks(const std::string& topic, const std::string& bookName);
 
 	std::string topicToString(const std::string& topic);
 
@@ -87,6 +87,8 @@ public:
 	std::string getTopic(int subId);
 
 	bool findInPendingBorrowBooks(const std::string &topic, const std::string &bookName);
+
+	std::vector<std::string> getTopicsList();
 };
 
 

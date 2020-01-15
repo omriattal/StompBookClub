@@ -50,7 +50,7 @@ void User::unsubscribe(int subId) {
 	topicToSubIdMap.erase(topic);
 }
 
-void User::addToPendingBorrowBooks(const std::string &topic, std::string book) {
+void User::addToPendingBorrowBooks(const std::string &topic, const std::string& book) {
 	pendingBorrows.insert(std::make_pair(topic, std::vector<std::string>()));
 	pendingBorrows[topic].push_back(book);
 }
@@ -122,14 +122,13 @@ bool User::bookExists(const std::string &topic, const std::string &book) {
 
 bool User::topicExists(const std::string &topic) const { return this->inventory.find(topic) != this->inventory.end(); }
 
-bool User::removeFromPendingBorrowBooks(const std::string &topic, const std::string& bookName) {
+void User::removeFromPendingBorrowBooks(const std::string &topic, const std::string& bookName) {
 	if (pendingBorrows.find(topic) != pendingBorrows.end()) {
 		std::vector<std::string> &topicPendingBooks = pendingBorrows[topic];
 		topicPendingBooks.erase(std::remove(topicPendingBooks.begin(),topicPendingBooks.end(),bookName),topicPendingBooks.end());
 	}
-	return false;
-
 }
+
 bool User::findInPendingBorrowBooks(const std::string &topic, const std::string& bookName) {
 	if (pendingBorrows.find(topic) != pendingBorrows.end()) {
 		std::vector<std::string> topicPendingBooks = pendingBorrows.at(topic);
@@ -175,7 +174,13 @@ std::string User::getTopic(int subId) {
 	}
 }
 
-
+std::vector<std::string> User::getTopicsList(){
+	std::vector<std::string> topics;
+	for(const auto& topicEntry : topicToSubIdMap){
+		topics.push_back(topicEntry.first);
+	}
+	return topics;
+}
 
 
 

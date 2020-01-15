@@ -115,6 +115,13 @@ void StompProtocol::handleUnsubscribe(StompFrame frame) {
 }
 
 void StompProtocol::handleDisconnect(StompFrame frame) {
+	std::vector<std::string> topics = activeUser->getTopicsList();
+	for (const auto &topic: topics) {
+		StompFrame unsubFrame;
+		unsubFrame.setCommand("UNSUBSCRIBE");
+		unsubFrame.addHeader("destination", topic);
+		handleUnsubscribe(unsubFrame);
+	}
 	int receiptId = activeUser->getCurrentReceiptId();
 	frame.addHeader("receipt", std::to_string(receiptId));
 	activeUser->addFrameWithReceipt(receiptId, frame);
@@ -161,7 +168,6 @@ void StompProtocol::handleTakingMessage(const StompFrame &frame, const std::vect
 	std::string bookName = getBookName(parsedBody, 1, parsedBody.size() - 2);
 	if (usernameToTake == activeUser->getUsername()) {
 		activeUser->lendBook(topic, bookName);
-
 	}
 }
 
@@ -172,7 +178,7 @@ void StompProtocol::handleHasMessage(const StompFrame &frame, const std::vector<
 	std::string username;
 	bodyStream >> username;
 	if (activeUser->findInPendingBorrowBooks(topic, bookName)) {
-		activeUser->removeFromPendingBorrowBooks(topic,bookName);
+		activeUser->removeFromPendingBorrowBooks(topic, bookName);
 		std::vector<std::string> bodyParser = Parser::split(frame.getBody(), ' ');
 		std::string owner = bodyParser.at(0);
 		activeUser->addBook(topic, bookName, owner);

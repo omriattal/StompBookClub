@@ -21,11 +21,13 @@ StompFrame StompFrame::createStompFrame(std::string message) {
 	StompFrame stompFrame;
 	stompFrame.command = lines[0];
 	int currentLine = 1;
+
 	while (!lines[currentLine].empty()) {
 		std::vector<std::string> splittedHeader = Parser::split(lines[currentLine], ':');
 		stompFrame.addHeader(splittedHeader[0], splittedHeader[1]);
 		currentLine++;
 	}
+
 	currentLine++;
 	while (currentLine < lines.size()) {
 		stompFrame.body += lines[currentLine++];
@@ -48,7 +50,6 @@ std::string StompFrame::toString() {
 	if (!body.empty()) {
 		stringed.append(body);
 	}
-	stringed.append("\n");
 	return stringed;
 }
 

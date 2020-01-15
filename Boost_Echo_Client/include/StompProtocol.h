@@ -10,6 +10,7 @@
 #include <StompFrame.h>
 #include <User.h>
 #include <mutex>
+#include <condition_variable>
 
 class StompProtocol {
 private:

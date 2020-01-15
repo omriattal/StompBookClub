@@ -5,7 +5,7 @@
 
 //login 127.0.0.1:7777 q s
 StompClientRunner::StompClientRunner() : protocol(), connectionHandler(), connectionHandlerThread(),
-                                         loggedIn(false), shouldTryJoinCHThread(false){}
+                                         loggedIn(false), shouldTryJoinCHThread(false), connected(false) {}
 
 void StompClientRunner::run() {
 	while (true) {
@@ -22,7 +22,7 @@ void StompClientRunner::run() {
 			handleMessage(msg, msgStream, action);
 		} else if (action == "quit") {
 			std::cout << "Omri and Roee were your kings, quitting application" << std::endl;
-			if(connectionHandlerThread.joinable()) connectionHandlerThread.join();
+			if (connectionHandlerThread.joinable()) connectionHandlerThread.join();
 			break;
 		} else {
 			std::cout << "You must login in order to use the application" << std::endl;
@@ -46,6 +46,7 @@ void StompClientRunner::readFromServer(StompClientRunner *runner) {
 	}
 	runner->setShouldJoinCHThread(true);
 	runner->getConnectionHandler()->close();
+	runner->setConnected((false));
 	runner->setLoggedIn(false);
 	runner->deleteFields();
 }
@@ -58,7 +59,8 @@ std::string StompClientRunner::readFromKeyboard() {
 	return keyboardInput;
 }
 
-void StompClientRunner::handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &action) {
+void
+StompClientRunner::handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &action) {
 	if (action == "login") {
 		std::cout << "Client is already logged in" << std::endl;
 	} else if (action == "join") {
@@ -91,9 +93,29 @@ void StompClientRunner::handleLoginCase(std::stringstream &msgStream) {
 	short port;
 	parseHostPort(hostPort, host, port);
 	createConHandlerAndConnectToSocket(host, port);
-	createProtocolAndSendConnectFrame(username, password, host);
-	loggedIn = true;
+	if (connected) {
+		createProtocolAndSendConnectFrame(username, password, host);
+		loggedIn = true;
+	}
 }
+
+void StompClientRunner::createConHandlerAndConnectToSocket(const std::string &host, short port) {
+	connectionHandler = new ConnectionHandler(host, port);
+	if (!connected && !connectionHandler->connect()) {
+		std::cerr << "Could not connect to server" << std::endl;
+	} else {
+		connected = true;
+	}
+}
+
+void StompClientRunner::createProtocolAndSendConnectFrame(const std::string &username, const std::string &password,
+                                                          const std::string &host) {
+	protocol = new StompProtocol(*connectionHandler);
+	StompFrame frame;
+	createConnectFrame(username, password, host, frame);
+	protocol->process(frame);
+}
+
 
 void StompClientRunner::handleJoinCase(std::stringstream &sesMsgStream) {
 	std::string topic;
@@ -114,7 +136,8 @@ void StompClientRunner::handleSendCases(std::stringstream &sesMsgStream, const s
 	createAndSendSendFrame(topic, sesAction, bookName);
 }
 
-void StompClientRunner::createAndSendSendFrame(const std::string &topic, const std::string &action, const std::string &bookName) {
+void StompClientRunner::createAndSendSendFrame(const std::string &topic, const std::string &action,
+                                               const std::string &bookName) {
 	StompFrame borrowFrame;
 	borrowFrame.setCommand("SEND");
 	borrowFrame.addHeader("destination", topic);
@@ -123,28 +146,14 @@ void StompClientRunner::createAndSendSendFrame(const std::string &topic, const s
 	protocol->process(borrowFrame);
 }
 
-void StompClientRunner::parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, std::string &bookName) {
+void
+StompClientRunner::parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, std::string &bookName) {
 	sesMsgStream >> topic;
 	std::string nextWord;
 	while (sesMsgStream >> nextWord) {
 		bookName += nextWord + " ";
 	}
 	bookName = bookName.substr(0, bookName.size() - 1);
-}
-
-void StompClientRunner::createProtocolAndSendConnectFrame(const std::string &username, const std::string &password,
-                                                    const std::string &host) {
-	protocol = new StompProtocol(*connectionHandler);
-	StompFrame frame;
-	createConnectFrame(username, password, host, frame);
-	protocol->process(frame);
-}
-
-void StompClientRunner::createConHandlerAndConnectToSocket(const std::string &host, short port) {
-	connectionHandler = new ConnectionHandler(host, port);
-	if (!connectionHandler->connect()) {
-		std::cerr << "Could not connect to server" << std::endl;
-	}
 }
 
 void StompClientRunner::createAndSendSubscribeFrame(std::string &topic) {
@@ -161,8 +170,9 @@ void StompClientRunner::createAndSendUnSubscribeFrame(std::string &topic) {
 	protocol->process(unSubscribeFrame);
 }
 
-void StompClientRunner::createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
-                                     StompFrame &frame) {
+void
+StompClientRunner::createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
+                                      StompFrame &frame) {
 	frame.setCommand("CONNECT");
 	frame.addHeader("login", username);
 	frame.addHeader("passcode", password);
@@ -170,12 +180,6 @@ void StompClientRunner::createConnectFrame(const std::string &username, const st
 	frame.addHeader("host", host);
 }
 
-void StompClientRunner::deleteFields() {
-	delete connectionHandler;
-	connectionHandler = nullptr;
-	delete protocol;
-	protocol = nullptr;
-}
 
 void StompClientRunner::parseHostPort(const std::string &hostPort, std::string &host, short &port) {
 	size_t location = hostPort.find(':');
@@ -202,4 +206,19 @@ void StompClientRunner::setLoggedIn(bool newLoggedIn) {
 
 void StompClientRunner::setShouldJoinCHThread(bool newShouldJoinCHThread) {
 	StompClientRunner::shouldTryJoinCHThread = newShouldJoinCHThread;
+}
+
+void StompClientRunner::deleteFields() {
+	delete connectionHandler;
+	connectionHandler = nullptr;
+	delete protocol;
+	protocol = nullptr;
+}
+
+StompClientRunner::~StompClientRunner() {
+	deleteFields();
+}
+
+void StompClientRunner::setConnected(bool newConnected) {
+	StompClientRunner::connected = newConnected;
 }

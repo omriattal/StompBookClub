@@ -16,6 +16,7 @@ private:
 	std::thread connectionHandlerThread;
 	bool loggedIn;
 	bool shouldTryJoinCHThread;
+	bool connected;
 
 	static std::string readFromKeyboard();
 
@@ -23,6 +24,8 @@ private:
 
 public:
 	StompClientRunner();
+
+
 
 	void run();
 
@@ -34,15 +37,17 @@ public:
 
 	ConnectionHandler *getConnectionHandler() const;
 
+	virtual ~StompClientRunner();
+
 private:
 
 	void deleteFields();
 
-	void toLowerCase(std::string &action);
+	static void toLowerCase(std::string &action);
 
 	static void parseHostPort(const std::string &hostPort, std::string &host, short &port);
 
-	void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
+	static void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
 	                        StompFrame &frame);
 
 	void createAndSendSubscribeFrame(std::string &topic);
@@ -71,6 +76,9 @@ private:
 	void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &action);
 
 	void checkIfErrorFrameWasReceived();
+
+public:
+	void setConnected(bool newConnected);
 };
 
 #endif //BOOST_ECHO_CLIENT_STOMPCLIENTRUNNER_H
