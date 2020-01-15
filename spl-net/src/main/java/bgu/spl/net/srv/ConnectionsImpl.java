@@ -59,10 +59,6 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
 	@Override
 	public void disconnect(int connectionId) {
-		for (Map.Entry<Integer, String> topic : userSubMap.get(connectionId).entrySet()) {
-			unsubscribe(topic.getKey(), connectionId);
-		}
-
 		conHandleMapRWLock.writeLock().lock();
 		connectionHandlerMap.remove(connectionId);
 		conHandleMapRWLock.writeLock().unlock();

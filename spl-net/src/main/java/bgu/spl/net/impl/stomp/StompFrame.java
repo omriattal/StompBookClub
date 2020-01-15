@@ -1,6 +1,8 @@
 package bgu.spl.net.impl.stomp;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -19,7 +21,7 @@ public class StompFrame {
 	}
 
 	public void init(String message) {
-		String[] lines = message.split(System.getProperty("line.separator"));
+		String[] lines = message.split(System.getProperty("line.separator"),-1);
 		int currentLine = 0;
 		commandType = StompCommand.valueOf(lines[currentLine++].toUpperCase());
 		currentLine = populateHeadersMap(lines, currentLine);
@@ -28,11 +30,8 @@ public class StompFrame {
 
 
 	private String createFrameBody(String[] lines, int currentLine) {
-		StringBuilder frameBody = new StringBuilder("");
-		while (!lines[currentLine].equals("\u0000")) {
-			frameBody.append(lines[currentLine++]).append("\n");
-		}
-		return frameBody.toString();
+		List<String> parsedBody = Arrays.asList(lines).subList(currentLine, lines.length);
+		return String.join("\n", parsedBody);
 	}
 
 	private int populateHeadersMap(String[] lines, int currentLine) {
@@ -51,7 +50,7 @@ public class StompFrame {
 		for (Map.Entry<String, String> entry : headersMap.entrySet()) {
 			frameString.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
 		}
-		frameString.append("\n").append(frameBody).append("\u0000");
+		frameString.append("\n").append(frameBody);
 
 		return frameString.toString();
 	}

@@ -12,7 +12,6 @@ public class StompEncoderDecoder implements MessageEncoderDecoder<StompFrame> {
 	@Override
 	public StompFrame decodeNextByte(byte nextByte) {
 		if (nextByte == '\u0000') {
-			pushByte(nextByte);
 			StompFrame receivedFrame = new StompFrame();
 			String frame = popString();
 			receivedFrame.init(frame);
@@ -25,7 +24,7 @@ public class StompEncoderDecoder implements MessageEncoderDecoder<StompFrame> {
 
 	@Override
 	public byte[] encode(StompFrame message) {
-		return message.toString().getBytes();
+		return (message.toString() + '\u0000').getBytes();
 	}
 
 	private void pushByte(byte nextByte) {
