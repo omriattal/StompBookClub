@@ -7,20 +7,20 @@
 #include <utility>
 
 
-Book::Book(std::string name, std::string owner) : status(AVAILABLE), name(std::move(name)), owner(std::move(owner)){}
+Book::Book(std::string name, std::string owner) : status(AVAILABLE), name(std::move(name)), owner(std::move(owner)) {}
 
 Book::Book() : status(AVAILABLE), name(), owner() {}
 
 bool Book::isAvailable() {
-	return status == AVAILABLE;
+    return status == AVAILABLE;
 }
 
 void Book::acquire() {
-	status = AVAILABLE;
+    status = AVAILABLE;
 }
 
 void Book::lend() {
-	status = NOT_AVAILABLE;
+    status = NOT_AVAILABLE;
 }
 
 
