@@ -14,5 +14,5 @@ add_executable(StompClient
         src/ConnectionHandler.cpp
         src/StompClientRunner.cpp
         src/StompFrame.cpp
-        include/StompFrame.h src/User.cpp include/User.h src/StompProtocol.cpp include/StompProtocol.h src/Book.cpp include/Book.h include/StompClientRunner.h src/Parser.cpp include/Parser.h src/StompClient.cpp)
+        include/StompFrame.h src/User.cpp include/User.h src/StompProtocol.cpp include/StompProtocol.h src/Book.cpp include/Book.h include/StompClientRunner.h src/Parser.cpp include/Parser.h src/StompBookClubClient.cpp)
 target_link_libraries(StompClient ${Boost_LIBRARIES})
