@@ -33,7 +33,6 @@ void StompClientRunner::run() {
 		checkIfErrorFrameWasReceived();
 		if (action == "login" && !loggedIn) {
 			handleLoginCase(msgStream);
-			connectionHandlerThread = std::thread(readFromServer, this);
 		} else if (loggedIn) {
 			handleMessage(msg, msgStream, action);
 		} else if (action == "quit") {
@@ -112,6 +111,7 @@ void StompClientRunner::handleLoginCase(std::stringstream &msgStream) {
 	if (connected) {
 		createProtocolAndSendConnectFrame(username, password, host);
 		loggedIn = true;
+        connectionHandlerThread = std::thread(readFromServer, this);
 	}
 }
 
