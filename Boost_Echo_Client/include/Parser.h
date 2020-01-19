@@ -7,7 +7,7 @@
 
 class Parser {
 public:
-	static std::vector<std::string> split(std::string s, char delimiter);
+    static std::vector<std::string> split(std::string s, char delimiter);
 };
 
 
