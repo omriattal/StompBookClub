@@ -12,118 +12,116 @@ import java.util.function.Supplier;
 
 public class Reactor<T> implements Server<T> {
 
-	private final int port;
-	private final Supplier<StompMessagingProtocol<T>> protocolFactory;
-	private final Supplier<MessageEncoderDecoder<T>> readerFactory;
-	private final ActorThreadPool pool;
-	private final Connections<T> connections;
-	private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
-	private Selector selector;
-	private AtomicInteger connectionId;
-	private Thread selectorThread;
+    private final int port;
+    private final Supplier<StompMessagingProtocol<T>> protocolFactory;
+    private final Supplier<MessageEncoderDecoder<T>> readerFactory;
+    private final ActorThreadPool pool;
+    private final Connections<T> connections;
+    private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
+    private Selector selector;
+    private AtomicInteger connectionId;
+    private Thread selectorThread;
 
-	public Reactor(int numThreads, int port, Supplier<StompMessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> readerFactory) {
+    public Reactor(int numThreads, int port, Supplier<StompMessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> readerFactory) {
 
-		this.pool = new ActorThreadPool(numThreads);
-		this.port = port;
-		this.protocolFactory = protocolFactory;
-		this.readerFactory = readerFactory;
-		connectionId = new AtomicInteger(0);
-		connections = new ConnectionsImpl<>();
-	}
+        this.pool = new ActorThreadPool(numThreads);
+        this.port = port;
+        this.protocolFactory = protocolFactory;
+        this.readerFactory = readerFactory;
+        connectionId = new AtomicInteger(0);
+        connections = new ConnectionsImpl<>();
+    }
 
-	@Override
-	public void serve() {
-		selectorThread = Thread.currentThread();
-		try (Selector selector = Selector.open(); ServerSocketChannel serverSock = ServerSocketChannel.open()) {
+    @Override
+    public void serve() {
+        selectorThread = Thread.currentThread();
+        try (Selector selector = Selector.open(); ServerSocketChannel serverSock = ServerSocketChannel.open()) {
 
-			this.selector = selector; //just to be able to close
+            this.selector = selector; //just to be able to close
 
-			serverSock.bind(new InetSocketAddress(port));
-			serverSock.configureBlocking(false);
-			serverSock.register(selector, SelectionKey.OP_ACCEPT);
-			System.out.println("Server started");
+            serverSock.bind(new InetSocketAddress(port));
+            serverSock.configureBlocking(false);
+            serverSock.register(selector, SelectionKey.OP_ACCEPT);
+            System.out.println("Server started");
 
-			while (!Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread().isInterrupted()) {
 
-				selector.select();
-				runSelectionThreadTasks();
+                selector.select();
+                runSelectionThreadTasks();
 
-				for (SelectionKey key : selector.selectedKeys()) {
+                for (SelectionKey key : selector.selectedKeys()) {
 
-					if (!key.isValid()) {
-						continue;
-					}
-					else if (key.isAcceptable()) {
-						handleAccept(serverSock, selector);
-					}
-					else {
-						handleReadWrite(key);
-					}
-				}
+                    if (!key.isValid()) {
+                        continue;
+                    } else if (key.isAcceptable()) {
+                        handleAccept(serverSock, selector);
+                    } else {
+                        handleReadWrite(key);
+                    }
+                }
 
-				selector.selectedKeys().clear(); //clear the selected keys set so that we can know about new events
+                selector.selectedKeys().clear(); //clear the selected keys set so that we can know about new events
 
-			}
+            }
 
-		} catch (ClosedSelectorException ex) {
-			//do nothing - server was requested to be closed
-		} catch (IOException ex) {
-			//this is an error
-			ex.printStackTrace();
-		}
+        } catch (ClosedSelectorException ex) {
+            //do nothing - server was requested to be closed
+        } catch (IOException ex) {
+            //this is an error
+            ex.printStackTrace();
+        }
 
-		System.out.println("server closed!!!");
-		pool.shutdown();
-	}
+        System.out.println("server closed!!!");
+        pool.shutdown();
+    }
 
-	/*package*/ void updateInterestedOps(SocketChannel chan, int ops) {
-		final SelectionKey key = chan.keyFor(selector);
-		if (Thread.currentThread() == selectorThread) {
-			key.interestOps(ops);
-		}
-		else {
-			selectorTasks.add(() -> {
-				key.interestOps(ops);
-			});
-			selector.wakeup();
-		}
-	}
+    /*package*/ void updateInterestedOps(SocketChannel chan, int ops) {
+        final SelectionKey key = chan.keyFor(selector);
+        if (Thread.currentThread() == selectorThread) {
+            key.interestOps(ops);
+        } else {
+            selectorTasks.add(() -> {
+                if (key.isValid())
+                    key.interestOps(ops);
+            });
+            selector.wakeup();
+        }
+    }
 
 
-	private void handleAccept(ServerSocketChannel serverChan, Selector selector) throws IOException {
-		SocketChannel clientChan = serverChan.accept();
-		clientChan.configureBlocking(false);
-		final NonBlockingConnectionHandler<T> handler = new NonBlockingConnectionHandler<>(readerFactory.get(), protocolFactory.get(), clientChan, this, connectionId.get(), connections);
+    private void handleAccept(ServerSocketChannel serverChan, Selector selector) throws IOException {
+        SocketChannel clientChan = serverChan.accept();
+        clientChan.configureBlocking(false);
+        final NonBlockingConnectionHandler<T> handler = new NonBlockingConnectionHandler<>(readerFactory.get(), protocolFactory.get(), clientChan, this, connectionId.get(), connections);
 
-		connections.connect(connectionId.getAndIncrement(), handler);
-		clientChan.register(selector, SelectionKey.OP_READ, handler);
-	}
+        connections.connect(connectionId.getAndIncrement(), handler);
+        clientChan.register(selector, SelectionKey.OP_READ, handler);
+    }
 
-	private void handleReadWrite(SelectionKey key) {
-		@SuppressWarnings("unchecked") NonBlockingConnectionHandler<T> handler = (NonBlockingConnectionHandler<T>) key.attachment();
+    private void handleReadWrite(SelectionKey key) {
+        @SuppressWarnings("unchecked") NonBlockingConnectionHandler<T> handler = (NonBlockingConnectionHandler<T>) key.attachment();
 
-		if (key.isReadable()) {
-			Runnable task = handler.continueRead();
-			if (task != null) {
-				pool.submit(handler, task);
-			}
-		}
+        if (key.isReadable()) {
+            Runnable task = handler.continueRead();
+            if (task != null) {
+                pool.submit(handler, task);
+            }
+        }
 
-		if (key.isValid() && key.isWritable()) {
-			handler.continueWrite();
-		}
-	}
+        if (key.isValid() && key.isWritable()) {
+            handler.continueWrite();
+        }
+    }
 
-	private void runSelectionThreadTasks() {
-		while (!selectorTasks.isEmpty()) {
-			selectorTasks.remove().run();
-		}
-	}
+    private void runSelectionThreadTasks() {
+        while (!selectorTasks.isEmpty()) {
+            selectorTasks.remove().run();
+        }
+    }
 
-	@Override
-	public void close() throws IOException {
-		selector.close();
-	}
+    @Override
+    public void close() throws IOException {
+        selector.close();
+    }
 
 }
