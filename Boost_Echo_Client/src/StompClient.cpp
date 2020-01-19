@@ -5,7 +5,7 @@
 #include <StompClientRunner.h>
 
 int main(int argc, char *argv[]) {
-    StompClientRunner stompClient;
-    stompClient.run();
-    return 0;
+	StompClientRunner stompClient;
+	stompClient.run();
+	return 0;
 }

@@ -9,8 +9,7 @@ public class StompServer {
 		if (args[1].toLowerCase().equals("reactor")) {
 			server = Server.reactor(Runtime.getRuntime().availableProcessors(), new Integer(args[0]), StompMessagingProtocolImpl::new, StompEncoderDecoder::new);
 			server.serve();
-		}
-		else if (args[1].toLowerCase().equals("tpc")) {
+		} else if (args[1].toLowerCase().equals("tpc")) {
 			server = Server.threadPerClient(new Integer(args[0]), StompMessagingProtocolImpl::new, StompEncoderDecoder::new);
 			server.serve();
 		}

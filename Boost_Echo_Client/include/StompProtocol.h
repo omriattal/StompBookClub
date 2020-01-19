@@ -14,60 +14,60 @@
 
 class StompProtocol {
 private:
-    ConnectionHandler &connectionHandler;
-    bool terminate;
-    User *activeUser;
-    std::mutex processMutex;
+	ConnectionHandler &connectionHandler;
+	bool terminate;
+	User *activeUser;
+	std::mutex processMutex;
 
-    void handleConnect(StompFrame frame);
+	void handleConnect(StompFrame frame);
 
-    void handleSubscribe(StompFrame frame);
+	void handleSubscribe(StompFrame frame);
 
-    void handleReceipt(const StompFrame &frame);
+	void handleReceipt(const StompFrame &frame);
 
-    void handleSend(StompFrame frame);
+	void handleSend(StompFrame frame);
 
-    void handleUnsubscribe(StompFrame frame);
+	void handleUnsubscribe(StompFrame frame);
 
-    void handleDisconnect(StompFrame frame);
+	void handleDisconnect(StompFrame frame);
 
-    void handleError(const StompFrame &frame);
+	void handleError(const StompFrame &frame);
 
-    //message frame handling
-    void handleMessage(const StompFrame &frame);
+	//message frame handling
+	void handleMessage(const StompFrame &frame);
 
-    void handleBorrowMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody);
+	void handleBorrowMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody);
 
-    void handleReturningMessage(const StompFrame &frame, std::vector<std::string> parsedBody);
+	void handleReturningMessage(const StompFrame &frame, std::vector<std::string> parsedBody);
 
-    void handleStatusMessage(const StompFrame &frame);
+	void handleStatusMessage(const StompFrame &frame);
 
-    void handleHasMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody);
+	void handleHasMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody);
 
-    void handleTakingMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody);
+	void handleTakingMessage(const StompFrame &frame, const std::vector<std::string> &parsedBody);
 
-    StompFrame createSendFrame(const std::string &topic, const std::string &frameBody) const;
+	StompFrame createSendFrame(const std::string &topic, const std::string &frameBody) const;
 
-    void sendFrame(StompFrame &frame) const;
+	void sendFrame(StompFrame &frame) const;
 
-    static void printToScreen(const std::string &message);
+	static void printToScreen(const std::string &message);
 
 public:
-    explicit StompProtocol(ConnectionHandler &connectionHandler);
+	explicit StompProtocol(ConnectionHandler &connectionHandler);
 
-    StompProtocol(const StompProtocol &other);
+	StompProtocol(const StompProtocol &other);
 
-    StompProtocol &operator=(const StompProtocol &other);
+	StompProtocol &operator=(const StompProtocol &other);
 
-    ~StompProtocol();
+	~StompProtocol();
 
-    void process(const StompFrame &frame);
+	void process(const StompFrame &frame);
 
-    bool shouldTerminate();
+	bool shouldTerminate();
 
-    void printMessageFrame(const StompFrame &frame) const;
+	void printMessageFrame(const StompFrame &frame) const;
 
-    std::string getBookName(const std::vector<std::string> &parsedBody, size_t from, size_t until) const;
+	std::string getBookName(const std::vector<std::string> &parsedBody, size_t from, size_t until) const;
 };
 
 

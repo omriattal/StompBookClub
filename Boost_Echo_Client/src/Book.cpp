@@ -12,15 +12,15 @@ Book::Book(std::string name, std::string owner) : status(AVAILABLE), name(std::m
 Book::Book() : status(AVAILABLE), name(), owner() {}
 
 bool Book::isAvailable() {
-    return status == AVAILABLE;
+	return status == AVAILABLE;
 }
 
 void Book::acquire() {
-    status = AVAILABLE;
+	status = AVAILABLE;
 }
 
 void Book::lend() {
-    status = NOT_AVAILABLE;
+	status = NOT_AVAILABLE;
 }
 
 

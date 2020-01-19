@@ -21,7 +21,7 @@ public class StompFrame {
 	}
 
 	public void init(String message) {
-		String[] lines = message.split(System.getProperty("line.separator"),-1);
+		String[] lines = message.split(System.getProperty("line.separator"), -1);
 		int currentLine = 0;
 		commandType = StompCommand.valueOf(lines[currentLine++].toUpperCase());
 		currentLine = populateHeadersMap(lines, currentLine);

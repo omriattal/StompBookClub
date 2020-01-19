@@ -71,8 +71,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 					releaseBuffer(buf);
 				}
 			};
-		}
-		else {
+		} else {
 			releaseBuffer(buf);
 			close();
 			return null;
@@ -99,8 +98,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 				chan.write(top);
 				if (top.hasRemaining()) {
 					return;
-				}
-				else {
+				} else {
 					writeQueue.remove();
 				}
 			} catch (IOException ex) {
@@ -113,8 +111,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 			if (protocol.shouldTerminate()) {
 				connections.disconnect(connectionId);
 				close();
-			}
-			else reactor.updateInterestedOps(chan, SelectionKey.OP_READ);
+			} else reactor.updateInterestedOps(chan, SelectionKey.OP_READ);
 		}
 	}
 

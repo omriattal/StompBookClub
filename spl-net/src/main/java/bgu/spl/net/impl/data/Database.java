@@ -21,13 +21,12 @@ public class Database {
 	}
 
 	public LoginStatus login(int connectionId, String username, String password) {
-		if(connectionsIdMap.containsKey(connectionId)){
+		if (connectionsIdMap.containsKey(connectionId)) {
 			return LoginStatus.CLIENT_ALREADY_CONNECTED;
 		}
 		if (addNewUserCase(connectionId, username, password)) {
 			return LoginStatus.ADDED_NEW_USER;
-		}
-		else {
+		} else {
 			return userExistsCase(connectionId, username, password);
 		}
 	}
@@ -37,11 +36,9 @@ public class Database {
 		synchronized (user) {
 			if (user.isLoggedIn()) {
 				return LoginStatus.ALREADY_LOGGED_IN;
-			}
-			else if (!user.password.equals(password)) {
+			} else if (!user.password.equals(password)) {
 				return LoginStatus.WRONG_PASSWORD;
-			}
-			else {
+			} else {
 				user.login();
 				user.setConnectionId(connectionId);
 				connectionsIdMap.put(connectionId, user);

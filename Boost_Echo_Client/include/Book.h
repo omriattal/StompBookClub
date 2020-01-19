@@ -8,27 +8,27 @@
 #include <string>
 
 enum BookStatus {
-    AVAILABLE, NOT_AVAILABLE
+	AVAILABLE, NOT_AVAILABLE
 };
 
 
 class Book {
 private:
-    BookStatus status;
+	BookStatus status;
 
 public:
-    const std::string name;
-    const std::string owner;
+	const std::string name;
+	const std::string owner;
 
-    Book(std::string name, std::string owner);
+	Book(std::string name, std::string owner);
 
-    Book();
+	Book();
 
-    bool isAvailable();
+	bool isAvailable();
 
-    void lend();
+	void lend();
 
-    void acquire();
+	void acquire();
 
 
 };

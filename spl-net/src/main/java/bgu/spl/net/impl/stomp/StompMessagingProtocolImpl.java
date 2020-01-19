@@ -62,7 +62,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 		int subId = new Integer(receivedFrame.getHeader("id"));
 		connections.unsubscribe(subId, connectionId);
 		StompFrame receiptFrame = createReceiptFrame(receivedFrame.getHeader("receipt"));
-		connections.send(connectionId,receiptFrame);
+		connections.send(connectionId, receiptFrame);
 	}
 
 	private void handleSend(StompFrame receivedFrame) {
@@ -100,15 +100,15 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<StompF
 
 	private StompFrame createConnectAnsFrame(StompFrame receivedFrame, LoginStatus loginStatus) {
 		HashMap<String, String> ansHeadersMap = new HashMap<>();
-		String username =receivedFrame.getHeader("login");
+		String username = receivedFrame.getHeader("login");
 		switch (loginStatus) {
 			case ADDED_NEW_USER:
 			case LOGGED_IN_SUCCESSFULLY: {
 				ansHeadersMap.put("version", receivedFrame.getHeader("accept-version"));
 				return createFrame(StompCommand.CONNECTED, ansHeadersMap, "Roee and Omri are your kings! connected to the server.");
 			}
-			case CLIENT_ALREADY_CONNECTED:{
-				ansHeadersMap.put("message","client already logged in to a user");
+			case CLIENT_ALREADY_CONNECTED: {
+				ansHeadersMap.put("message", "client already logged in to a user");
 				shouldTerminate = true;
 				return createFrame(StompCommand.ERROR, ansHeadersMap, "Failed to login user: " + username + "\n Reason: client already logged in to a user");
 			}

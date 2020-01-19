@@ -11,76 +11,76 @@
 
 class StompClientRunner {
 private:
-    StompProtocol *protocol;
-    ConnectionHandler *connectionHandler{};
-    std::thread connectionHandlerThread;
-    bool loggedIn;
-    bool shouldTryJoinCHThread;
-    bool connected;
+	StompProtocol *protocol;
+	ConnectionHandler *connectionHandler{};
+	std::thread connectionHandlerThread;
+	bool loggedIn;
+	bool shouldTryJoinCHThread;
+	bool connected;
 
-    static std::string readFromKeyboard();
+	static std::string readFromKeyboard();
 
-    static void readFromServer(StompClientRunner *runner);
+	static void readFromServer(StompClientRunner *runner);
 
 public:
-    StompClientRunner();
+	StompClientRunner();
 
-    StompClientRunner(const StompClientRunner &other);
+	StompClientRunner(const StompClientRunner &other);
 
-    StompClientRunner &operator=(const StompClientRunner &other);
+	StompClientRunner &operator=(const StompClientRunner &other);
 
-    void run();
+	void run();
 
-    void setLoggedIn(bool newLoggedIn);
+	void setLoggedIn(bool newLoggedIn);
 
-    void setShouldJoinCHThread(bool newShouldJoinCHThread);
+	void setShouldJoinCHThread(bool newShouldJoinCHThread);
 
-    StompProtocol *getProtocol() const;
+	StompProtocol *getProtocol() const;
 
-    ConnectionHandler *getConnectionHandler() const;
+	ConnectionHandler *getConnectionHandler() const;
 
-    virtual ~StompClientRunner();
+	virtual ~StompClientRunner();
 
 private:
 
-    void deleteFields();
+	void deleteFields();
 
-    static void toLowerCase(std::string &action);
+	static void toLowerCase(std::string &action);
 
-    static void parseHostPort(const std::string &hostPort, std::string &host, short &port);
+	static void parseHostPort(const std::string &hostPort, std::string &host, short &port);
 
-    static void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
-                                   StompFrame &frame);
+	static void createConnectFrame(const std::string &username, const std::string &password, const std::string &host,
+	                               StompFrame &frame);
 
-    void createAndSendSubscribeFrame(std::string &topic);
+	void createAndSendSubscribeFrame(std::string &topic);
 
-    void createAndSendUnSubscribeFrame(std::string &topic);
+	void createAndSendUnSubscribeFrame(std::string &topic);
 
-    void createConHandlerAndConnectToSocket(const std::string &host, short port);
+	void createConHandlerAndConnectToSocket(const std::string &host, short port);
 
-    void createProtocolAndSendConnectFrame(const std::string &username, const std::string &password,
-                                           const std::string &host);
+	void createProtocolAndSendConnectFrame(const std::string &username, const std::string &password,
+	                                       const std::string &host);
 
-    static void parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, std::string &bookName);
+	static void parseTopicAndBookName(std::stringstream &sesMsgStream, std::string &topic, std::string &bookName);
 
-    void createAndSendSendFrame(const std::string &topic, const std::string &action, const std::string &bookName);
+	void createAndSendSendFrame(const std::string &topic, const std::string &action, const std::string &bookName);
 
-    void handleSendCases(std::stringstream &sesMsgStream, const std::string &sesAction);
+	void handleSendCases(std::stringstream &sesMsgStream, const std::string &sesAction);
 
-    void handleExitCase(std::stringstream &sesMsgStream);
+	void handleExitCase(std::stringstream &sesMsgStream);
 
-    void handleJoinCase(std::stringstream &sesMsgStream);
+	void handleJoinCase(std::stringstream &sesMsgStream);
 
-    void handleLoginCase(std::stringstream &msgStream);
+	void handleLoginCase(std::stringstream &msgStream);
 
-    void handleLogoutCase();
+	void handleLogoutCase();
 
-    void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &action);
+	void handleMessage(const std::string &msg, std::stringstream &sesMsgStream, const std::string &action);
 
-    void checkIfErrorFrameWasReceived();
+	void checkIfErrorFrameWasReceived();
 
 public:
-    void setConnected(bool newConnected);
+	void setConnected(bool newConnected);
 };
 
 #endif //BOOST_ECHO_CLIENT_STOMPCLIENTRUNNER_H
